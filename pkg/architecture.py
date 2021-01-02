@@ -27,8 +27,8 @@ class Encoder(nn.Module):
 
     def forward(self, x: torch.FloatTensor, m: torch.FloatTensor) -> torch.FloatTensor:
         m = m[:, :, None, None].repeat(1, 1, x.shape[-2], x.shape[-1])
-        y = torch.cat([self.enc1(x), m], dim=1)
-        return torch.enc2(y)
+        y = torch.cat([self.enc1(x), m, x], dim=1)
+        return self.enc2(y)
 
 
 @dataclass
@@ -52,7 +52,7 @@ class Decoder(nn.Module):
 
 @dataclass
 class Discriminator(nn.Module):
-    inp_c: int =6
+    inp_c: int =3
     out_c: int =2
     hid_c: int =64
 
@@ -66,8 +66,8 @@ class Discriminator(nn.Module):
         self.pool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(self.hid_c, self.out_c)
 
-    def forward(self, x1: torch.FloatTensor, x2: torch.FloatTensor) -> torch.FloatTensor:
-        y = self.convs(torch.cat([x1, x2], dim=1))
+    def forward(self, x: torch.FloatTensor) -> torch.FloatTensor:
+        y = self.convs(x)
         y = self.pool(y)[:, :, 0, 0]
         return self.fc(y)
 

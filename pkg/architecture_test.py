@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from model import (
+from architecture import (
     Encoder,
     Decoder,
     Discriminator,
@@ -58,8 +58,8 @@ class TestDiscriminator(unittest.TestCase):
         """test method for forward
         """
         dis = Discriminator()
-        x1, x2 = torch.rand(1, 3, 32, 32), torch.rand(1, 3, 32, 32)
-        y = dis(x1, x2)
+        x = torch.rand(1, 3, 32, 32)
+        y = dis(x)
         self.assertEqual(torch.Size([1, 2]), y.shape)
 
 
