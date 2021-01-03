@@ -9,12 +9,11 @@ sys.path.append(os.path.abspath("."))
 from pkg.architecture import (
     Discriminator
 )
-from pkg.loss import (
+from pkg.criterion import (
     MessageLoss,
     ImageReconstructionLoss,
     AdversarialLoss,
-)
-
+) 
 
 class TestMessageLoss(unittest.TestCase):
     """test for MessageLoss
