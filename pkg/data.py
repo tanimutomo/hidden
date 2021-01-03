@@ -7,10 +7,10 @@ import torch
 import torchvision
 
 
-class COCOImageDataset(torch.utils.data.Dataset):
-    """COCO Image Dataset"""
+class WatermarkDataset(torch.utils.data.Dataset):
+    """Watermark Image Dataset"""
 
-    def __init__(self, root_dir, transform=None):
+    def __init__(self, root_dir, msg_len, img_transform=None):
         """
         Args:
             root_dir (string): Directory with all the images.
@@ -18,7 +18,8 @@ class COCOImageDataset(torch.utils.data.Dataset):
                 on a sample.
         """
         self.root_dir = root_dir
-        self.transform = transform
+        self.msg_len = int(msg_len)
+        self.img_transform = img_transform
         self.files = [f for f in os.listdir(root_dir) if os.path.isfile(os.path.join(root_dir, f))]
 
     def __len__(self):
@@ -26,7 +27,8 @@ class COCOImageDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx: int):
         img = pil.Image.open(os.path.join(self.root_dir, self.files[idx]))
-        if self.transform:
-            return self.transform(img)
-        return img
+        msg = torch.rand(self.msg_len).round()
+        if self.img_transform:
+            img = self.img_transform(img)
+        return {"image": img, "message": msg}
 

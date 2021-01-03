@@ -7,16 +7,16 @@ import torch
 sys.path.append(os.path.abspath("."))
 
 from pkg.data import (
-    COCOImageDataset,
+    WatermarkDataset,
 )
 
 
-class TestCOCOImageDataset(unittest.TestCase):
-    """test for COCOImageDataset
+class TestWatermarkDataset(unittest.TestCase):
+    """test for WatermarkDataset
     """
 
     def setUp(self):
-        self.dataset = COCOImageDataset("./pkg_test/data/dataset")
+        self.dataset = WatermarkDataset("./pkg_test/data/dataset", 30)
 
     def test_len(self):
         """test method for forward
@@ -26,7 +26,9 @@ class TestCOCOImageDataset(unittest.TestCase):
     def test_getitem(self):
         """test method for getitem
         """
-        self.assertIsNotNone(self.dataset[0])
+        img, msg = self.dataset[0]
+        self.assertIsNotNone(img)
+        self.assertIsNotNone(msg)
 
 
 if __name__ == "__main__":
