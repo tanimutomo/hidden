@@ -10,36 +10,32 @@ from pkg.architecture import (
     Discriminator
 )
 from pkg.criterion import (
-    MessageLoss,
-    ImageReconstructionLoss,
+    L2Loss,
     AdversarialLoss,
 ) 
 
-class TestMessageLoss(unittest.TestCase):
-    """test for MessageLoss
+class TestL2Loss(unittest.TestCase):
+    """test for L2Loss
     """
 
-    def test_forward(self):
+    def setUp(self):
+        self.loss = L2Loss()
+
+    def test_forward_vector(self):
         """test method for forward
         """
-        f = MessageLoss()
         output = torch.rand(1, 30)
         target = torch.rand(1, 30)
-        y = f(output, target)
+        y = self.loss(output, target)
         self.assertEqual(torch.Size([]), y.shape)
 
 
-class TestImageReconstructionLoss(unittest.TestCase):
-    """test for ImageReconstructionLoss
-    """
-
-    def test_forward(self):
+    def test_forward_image(self):
         """test method for forward
         """
-        f = ImageReconstructionLoss()
         output = torch.rand(1, 3, 32, 32)
         target = torch.rand(1, 3, 32, 32)
-        y = f(output, target)
+        y = self.loss(output, target)
         self.assertEqual(torch.Size([]), y.shape)
 
 
