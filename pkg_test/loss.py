@@ -1,11 +1,15 @@
+import os
+import sys
 import unittest
 
 import torch
 
-from architecture import (
+sys.path.append(os.path.abspath("."))
+
+from pkg.architecture import (
     Discriminator
 )
-from loss import (
+from pkg.loss import (
     MessageLoss,
     ImageReconstructionLoss,
     AdversarialLoss,

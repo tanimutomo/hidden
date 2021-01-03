@@ -1,8 +1,12 @@
+import os
+import sys
 import unittest
 
 import torch
 
-from architecture import (
+sys.path.append(os.path.abspath("."))
+
+from pkg.architecture import (
     Encoder,
     Decoder,
     Discriminator,
