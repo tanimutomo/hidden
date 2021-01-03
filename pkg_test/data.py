@@ -10,13 +10,14 @@ from pkg.data import (
     WatermarkDataset,
 )
 
+DATASET_PATH = "./pkg_test/testdata/data/dataset"
 
 class TestWatermarkDataset(unittest.TestCase):
     """test for WatermarkDataset
     """
 
     def setUp(self):
-        self.dataset = WatermarkDataset("./pkg_test/data/dataset", 30)
+        self.dataset = WatermarkDataset(DATASET_PATH, 30)
 
     def test_len(self):
         """test method for forward
