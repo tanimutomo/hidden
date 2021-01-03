@@ -2,6 +2,9 @@ import unittest
 
 import torch
 
+from architecture import (
+    Discriminator
+)
 from loss import (
     MessageLoss,
     ImageReconstructionLoss,
@@ -44,7 +47,7 @@ class TestAdversarialLoss(unittest.TestCase):
     def test_generator_loss(self):
         """test method for generator_loss
         """
-        l = AdversarialLoss()
+        l = AdversarialLoss(Discriminator())
         output = torch.rand(1, 3, 32, 32)
         y = l.generator_loss(output)
         self.assertEqual(torch.Size([1, 1]), y.shape)
@@ -52,7 +55,7 @@ class TestAdversarialLoss(unittest.TestCase):
     def test_disctiminator_loss(self):
         """test method for disctiminator_loss
         """
-        l = AdversarialLoss()
+        l = AdversarialLoss(Discriminator())
         output = torch.rand(1, 3, 32, 32)
         target = torch.rand(1, 3, 32, 32)
         y = l.discriminator_loss(output, target)
