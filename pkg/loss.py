@@ -1,19 +1,27 @@
+from dataclasses import dataclass
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn as nn
 
-import pkg.architecture as arch
+import architecture as arch
 
 
 @dataclass
 class MessageLoss(nn.Module):
+    def __post_init__(self):
+        super().__init__()
+
     def forward(self, output :torch.FloatTensor, target :torch.FloatTensor) -> torch.FloatTensor:
         return F.mse_loss(output, target)
 
 
 @dataclass
 class ImageReconstructionLoss(nn.Module):
+    def __post_init__(self):
+        super().__init__()
+
     def forward(self, output :torch.FloatTensor, target :torch.FloatTensor) -> torch.FloatTensor:
         return F.mse_loss(output, target)
 
@@ -21,9 +29,10 @@ class ImageReconstructionLoss(nn.Module):
 @dataclass
 class AdversarialLoss(nn.Module):
     def __post_init__(self):
+        super().__init__()
         self.dis = arch.Discriminator()
 
-    def generator_loss(self, output :torch.FloatTensor, target :torch.FloatTensor) -> torch.FloatTensor:
+    def generator_loss(self, output :torch.FloatTensor) -> torch.FloatTensor:
         return -torch.log(self.dis(output))
 
     def discriminator_loss(self, output :torch.FloatTensor, target :torch.FloatTensor) -> torch.FloatTensor:
