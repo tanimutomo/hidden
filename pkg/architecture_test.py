@@ -60,7 +60,7 @@ class TestDiscriminator(unittest.TestCase):
         dis = Discriminator()
         x = torch.rand(1, 3, 32, 32)
         y = dis(x)
-        self.assertEqual(torch.Size([1, 2]), y.shape)
+        self.assertEqual(torch.Size([1, 1]), y.shape)
 
 
 if __name__ == "__main__":

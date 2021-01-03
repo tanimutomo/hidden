@@ -53,7 +53,7 @@ class Decoder(nn.Module):
 @dataclass
 class Discriminator(nn.Module):
     inp_c: int =3
-    out_c: int =2
+    out_c: int =1
     hid_c: int =64
 
     def __post_init__(self):
