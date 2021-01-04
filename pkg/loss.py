@@ -17,8 +17,25 @@ from pkg.architecture import (
     Discriminator,
 )
 
+class Loss(object):
+    def calcurate(self):
+        raise NotImplementedError()
+
+    def backward(self):
+        raise NotImplementedError()
+
+    def to_item_dict(self) -> dict:
+        item_dict = dict()
+        for name, loss in self.losses.items():
+            item_dict[name] = loss.item()
+        return item_dict
+
+    def _reset(self):
+        self.losses = {name: 0.0 for name in self.names}
+
+
 @dataclass
-class HiddenLoss(object):
+class HiddenLoss(Loss):
     lambda_i: float =0.7
     lambda_g: float =0.001
     discriminator_lr: float =1e-3
@@ -32,6 +49,7 @@ class HiddenLoss(object):
     ]
 
     def __post_init__(self):
+        super().__init__()
         self.message_loss = L2Loss()
         self.image_reconstruction_loss = L2Loss()
         
@@ -59,13 +77,7 @@ class HiddenLoss(object):
         self.losses["adversarial_discriminator"].backward()
         self.discriminator_optimizer.step()
 
-    def to_dict(self) -> dict:
-        self.losses
-
     def _calcurate_total(self) -> torch.FloatTensor:
         self.losses["total"] = self.losses["message"] \
-            + self.lambda_i * self.reconstruction["reconstruction"] \
-            + self.lambda_g * self.adversarial_generator["adversarial_generator"]
-
-    def _reset(self):
-        self.losses = {name: 0.0 for name in self.names}
+             + self.lambda_i * self.losses["reconstruction"] \
+             + self.lambda_g * self.losses["adversarial_generator"]
