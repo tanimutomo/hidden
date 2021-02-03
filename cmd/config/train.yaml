@@ -1,0 +1,32 @@
+mode: train
+
+defaults:
+  - config/experiment@experiment: default
+
+data:
+  resol: 128
+  gray: False
+  msg_len: 30
+  batch_size: 12
+  train_path: "/Users/tanimu/data/coco2014/test"
+  test_path: "/Users/tanimu/data/coco2014/test"
+
+model:
+  tmp: 1
+
+optim:
+  method: Adam
+  weight_decay: 0
+  lr: 1e-3
+
+comet:
+  use: False
+  tags: null
+  resume_key: null
+
+trainer:
+  save_img_interval: 10
+  test_interval: 10 # save ckpt when testing
+
+seed: null
+gpu_ids: []

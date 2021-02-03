@@ -1,0 +1,9 @@
+# @package experiment
+hydra:
+  run:
+    dir: log/${mode}/${experiment.name}
+
+experiment:
+  mode: new
+  prefix: null
+  name: ${experiment.prefix}_${now:%Y-%m%d-%H%M-%S}

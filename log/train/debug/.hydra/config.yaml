@@ -1,0 +1,28 @@
+mode: train
+data:
+  resol: 128
+  gray: false
+  msg_len: 30
+  batch_size: 12
+  train_path: /Users/tanimu/data/coco2014/test
+  test_path: /Users/tanimu/data/coco2014/test
+model:
+  tmp: 1
+optim:
+  method: Adam
+  weight_decay: 0
+  lr: 0.001
+  max_iter: 100
+comet:
+  use: false
+  tags: null
+  resume_key: null
+trainer:
+  save_img_interval: 10
+  test_interval: 10
+seed: null
+gpu_ids: []
+experiment:
+  mode: debug
+  name: debug
+img_interval: 100
