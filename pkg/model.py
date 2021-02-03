@@ -16,6 +16,7 @@ from pkg.architecture import (
 
 class HiddenModel(nn.Module):
     def __init__(self, cfg, distortioner: distortion.Distortioner):
+        super().__init__()
         self.encoder = Encoder()
         self.distortioner = distortioner
         self.decoder = Decoder()

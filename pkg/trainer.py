@@ -17,7 +17,12 @@ from pkg.loss import (
 )
 
 
-class Trainer(object):
+class TrainerConfig(typing.NamedTuple):
+    save_img_interval: int =10
+    test_interval: int =10
+
+
+class HiddenTrainer(object):
     def __init__(self, device, model, transformer, experiment):
         self.device = device
         self.model = model
@@ -27,13 +32,13 @@ class Trainer(object):
     def train_setup(self, cfg: TrainerConfig):
         self.cfg = cfg
 
-    def train(self, data_loader, loss: Loss, optimizer):
+    def train(self, train_loader, test_loader, loss: Loss, optimizer):
         self.loss = loss
         self.optimizer = optimizer
         self.meter = MultiAverageMeter(self.loss.names)
 
         print("Start Training...")
-        for step, (img, msg) in enumerate(data_loader):
+        for step, (img, msg) in enumerate(train_loader):
             # self.experiment.iter = itr
             loss_dict, save_imgs = self._train_one(img, msg)
             self.meter.updates(loss_dict)
@@ -44,7 +49,7 @@ class Trainer(object):
                 # self.experiment.save_image(save_inp, f"train_{itr}.png")
             
             if step % self.cfg.test_interval == 0:
-                loss_dict, save_imgs = self.test(self.test_loader, self.loss)
+                loss_dict, save_imgs = self.test(test_loader, self.loss)
                 # self.experiment.report("test", loss_dict)
                 # self.experiment.save_image(save_inp, f"test_{itr}.png")
 
@@ -80,16 +85,11 @@ class Trainer(object):
         enc_img, pred_msg = self.model(img, msg)
         self.loss.calcurate(enc_img, pred_msg, img, msg)
 
+        self.loss.discriminator_optimize()
+
         self.optimizer.zero_grad()
         self.loss.backward()
         self.optimizer.step()
 
-        self.loss.discriminator_optimize()
 
         return self.loss.to_item_dict, torch.stack([enc_img[0], img[0]]).cpu().detach()
-
-
-class TrainerConfig(typing.NamedTuple):
-    save_img_interval: int =10
-    test_interval: int =10
-    

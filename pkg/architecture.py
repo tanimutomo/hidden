@@ -5,15 +5,15 @@ import torch
 import torch.nn as nn
 
 
-@dataclass
 class Encoder(nn.Module):
-    inp_c: int =3
-    out_c: int =3
-    hid_c: int =64
-    msg_c: int =30
-    
-    def __post_init__(self):
+    def __init__(self, inp_c: int =3, out_c: int =3, hid_c: int =64, msg_c: int =30):
         super().__init__()
+
+        self.inp_c = inp_c
+        self.out_c = out_c
+        self.hid_c = hid_c
+        self.msg_c = msg_c
+
         self.enc1 = nn.Sequential(
             ConvBlock(self.inp_c, self.hid_c),
             ConvBlock(self.hid_c, self.hid_c),
@@ -31,14 +31,14 @@ class Encoder(nn.Module):
         return self.enc2(y)
 
 
-@dataclass
 class Decoder(nn.Module):
-    inp_c: int =3
-    out_c: int =30
-    hid_c: int =64
-
-    def __post_init__(self):
+    def __init__(self, inp_c: int =3, out_c: int =30, hid_c: int =64):
         super().__init__()
+        
+        self.inp_c = inp_c
+        self.out_c = out_c
+        self.hid_c = hid_c
+
         self.dec = nn.Sequential(
             ConvBlock(self.inp_c, self.hid_c),
             *[ConvBlock(self.hid_c, self.hid_c)]*5,
@@ -50,14 +50,14 @@ class Decoder(nn.Module):
         return self.dec(x)[:, :, 0, 0]
 
 
-@dataclass
 class Discriminator(nn.Module):
-    inp_c: int =3
-    out_c: int =1
-    hid_c: int =64
-
-    def __post_init__(self):
+    def __init__(self, inp_c: int =3, out_c: int =1, hid_c: int =64):
         super().__init__()
+
+        self.inp_c = inp_c
+        self.out_c = out_c
+        self.hid_c = hid_c
+
         self.convs = nn.Sequential(
             ConvBlock(self.inp_c, self.hid_c),
             ConvBlock(self.hid_c, self.hid_c),
@@ -72,16 +72,16 @@ class Discriminator(nn.Module):
         return self.fc(y)
 
 
-@dataclass
 class ConvBlock(nn.Module):
-    inp_c: int
-    out_c: int
-    kernel_size: int =3
-    stride: int =1
-    padding: int =1
-
-    def __post_init__(self):
+    def __init__(self, inp_c: int, out_c: int, kernel_size: int =3, stride: int =1, padding: int =1):
         super().__init__()
+
+        self.inp_c = inp_c
+        self.out_c = out_c
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+
         self.block = nn.Sequential(
             nn.Conv2d(self.inp_c, self.out_c, self.kernel_size, self.stride, self.padding),
             nn.BatchNorm2d(self.out_c),

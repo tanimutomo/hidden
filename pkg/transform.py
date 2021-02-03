@@ -8,25 +8,23 @@ from torchvision import (
 )
 
 @dataclass
-class Transformer(object):
+class ImageTransformer(object):
     img_size: typing.Tuple[int, int] =(128, 128)
 
-    def train_image_transform(self):
-        return transforms.Compose([
+    def __post_init__(self):
+        self.train = transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.RandomResizedCrop(self.img_size, scale=(0.3, 1.0)),
             transforms.ToTensor(),
             kornia.color.RgbToYuv(),
         ])
 
-    def test_image_transform(self):
-        return transforms.Compose([
+        self.test = transforms.Compose([
             transforms.Resize(self.img_size),
             transforms.ToTensor(),
             kornia.color.RgbToYuv(),
         ])
 
-    def model_output_transform(self):
-        return transforms.Compose([
+        self.post_process = transforms.Compose([
             kornia.color.YuvToRgb(),
         ])

@@ -1,6 +1,8 @@
+import typing
+
 
 class MultiAverageMeter(object):
-    def __init__(self, names: list[str]):
+    def __init__(self, names: typing.List[str]):
         self.names = names
         for name in names:
             setattr(self, name, AverageMeter())

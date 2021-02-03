@@ -19,8 +19,11 @@ class AdversarialLoss(nn.Module):
         super().__init__()
         self.dis = discriminator
 
-    def generator_loss(self, output :torch.FloatTensor) -> torch.FloatTensor:
-        return -torch.log(self.dis(output))
+    def generator_loss(self, x :torch.FloatTensor) -> torch.FloatTensor:
+        return torch.mean(-torch.log(self.dis(x)))
 
-    def discriminator_loss(self, output :torch.FloatTensor, target :torch.FloatTensor) -> torch.FloatTensor:
-        return -torch.log(self.dis(target)) - torch.log(1 - self.dis(output))
+    def discriminator_real_loss(self, x :torch.FloatTensor) -> torch.FloatTensor:
+        return torch.mean(-torch.log(self.dis(x)))
+
+    def discriminator_fake_loss(self, x :torch.FloatTensor) -> torch.FloatTensor:
+        return torch.mean(- torch.log(1 - self.dis(x)))

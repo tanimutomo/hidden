@@ -30,5 +30,5 @@ class WatermarkDataset(torch.utils.data.Dataset):
         msg = torch.rand(self.msg_len).round()
         if self.img_transform:
             img = self.img_transform(img)
-        return {"image": img, "message": msg}
+        return img, msg
 
