@@ -1,13 +1,4 @@
 # @package experiment
-hydra:
-  run:
-    dir: log/${mode}/debug
 
-experiment:
-  mode: debug
-  name: debug
-
-optim:
-  max_iter: 100
-
-img_interval: 100
+mode: debug
+name: debug
