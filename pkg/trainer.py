@@ -1,95 +1,69 @@
-from dataclasses import dataclass
-import os
-import sys
 import typing
+from dataclasses import dataclass
 
 import torch
-import torch.nn as nn
-from tqdm import tqdm
+import torch.nn.functional as F
 
-sys.path.append(os.path.abspath("."))
-
-from pkg.meter import (
-    MultiAverageMeter,
-)
-from pkg.loss import (
-    Loss
+from pkg.architecture import (
+    Discriminator,
 )
 
 
-class TrainerConfig(typing.NamedTuple):
-    save_img_interval: int =10
-    test_interval: int =10
+@dataclass
+class HiddenTrainer:
 
+    lambda_i: float =0.7
+    lambda_g: float =0.001
+    discriminator_lr: float =1e-3
 
-class HiddenTrainer(object):
-    def __init__(self, device, model, transformer, experiment):
+    loss_names = [
+        "message",
+        "reconstruction",
+        "adversarial_generator",
+        "adversarial_discriminator",
+        "total",
+    ]
+
+    def __post_init__(self, device, optimizer):
         self.device = device
-        self.model = model
-        self.transformer = transformer
-        # self.experiment = experiment
-
-    def train_setup(self, cfg: TrainerConfig):
-        self.cfg = cfg
-
-    def train(self, train_loader, test_loader, loss: Loss, optimizer):
-        self.loss = loss
         self.optimizer = optimizer
-        self.meter = MultiAverageMeter(self.loss.names)
 
-        print("Start Training...")
-        for step, (img, msg) in enumerate(train_loader):
-            # self.experiment.iter = itr
-            loss_dict, save_imgs = self._train_one(img, msg)
-            self.meter.updates(loss_dict)
-            # self.experiment.report("train", loss_dict)
+        self.discriminator = Discriminator().to(self.device)
+        self.discriminator_optimizer = torch.optim.Adam(
+            self.discriminator.parameters(), lr=self.discriminator_lr)
 
-            if step % self.cfg.img_interval == 0:
-                pass
-                # self.experiment.save_image(save_inp, f"train_{itr}.png")
-            
-            if step % self.cfg.test_interval == 0:
-                loss_dict, save_imgs = self.test(test_loader, self.loss)
-                # self.experiment.report("test", loss_dict)
-                # self.experiment.save_image(save_inp, f"test_{itr}.png")
+    def __call__(self, model, img, msg) -> typing.Tuple[typing.Dict, typing.Dict]:
+        img, msg = img.to(self.device), msg.to(self.device)
 
-            #     self.experiment.save_ckpt(self.model, self.optimizer)
-
-    def test(self, test_loader, loss: Loss) -> typing.Tuple[dict, dict]:
-        meter = MultiAverageMeter(loss.names)
-        self.model.eval()
-
-        with torch.no_grad():
-            with tqdm(test_loader, ncols=80, leave=False) as pbar:
-                for itr, (gt, mask) in enumerate(pbar):
-                    img = img.to(self.device)
-                    msg = msg.to(self.device)
-
-                    enc_img, pred_msg = self.model(img, msg)
-                    loss.calcurate(enc_img, pred_msg, img, msg)
-                    meter.updates(loss.to_item_dict())
-
-                    pbar.set_postfix_str(f'loss={loss.losses["total"].item():.4f}')
-
-        return (
-            loss.to_item_dict(),
-            torch.stack([enc_img[0], img[0]], dim=0).cpu().detach(),
-        )
-
-    def _train_one(self, img, msg) -> typing.Tuple[dict, dict]:
-        self.model.train()
-
-        img = img.to(self.device)
-        msg = msg.to(self.device)
+        self.discriminator.zero_grad()
+        label = torch.full((img.shape[0],), 1, dtype=torch.float, device=self.device)
+        err_d_real = F.binary_cross_entropy(self.discriminator(img).view(-1), label)
+        err_d_real.backward()
 
         enc_img, pred_msg = self.model(img, msg)
-        self.loss.calcurate(enc_img, pred_msg, img, msg)
+        label.fill_(0)
+        err_d_fake = F.binary_cross_entropy(self.discriminator(enc_img.detach()).view(-1), label)
+        err_d_fake.backward()
 
-        self.loss.discriminator_optimize()
+        self.discriminator_optimizer.step()
 
-        self.optimizer.zero_grad()
-        self.loss.backward()
+        model.zero_grad()
+        err_g = F.binary_cross_entropy(self.discriminator(enc_img.detach()).view(-1), label)
+        err_msg = F.mse_loss(pred_msg, msg)
+        err_rec = F.mse_loss(enc_img, img)
+        err_model = err_msg + self.lambda_i*err_rec + self.lambda_g*err_g
+        err_model.backward()
+
         self.optimizer.step()
 
-
-        return self.loss.to_item_dict, torch.stack([enc_img[0], img[0]]).cpu().detach()
+        losses = {
+            "message": err_msg.item(),
+            "reconstruction": err_rec.item(),
+            "adversarial_generator": err_g.item(),
+            "adversarial_discriminator": err_d_real.item() + err_d_fake.item(),
+            "total": err_model.item(),
+        }
+        imgs = {
+            "train": torch.stack([enc_img[0], img[0]]).cpu().detach(),
+        }
+        return losses, imgs
