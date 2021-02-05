@@ -65,11 +65,14 @@ class Discriminator(nn.Module):
         )
         self.pool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(self.hid_c, self.out_c)
+        self.sig = nn.Sigmoid()
 
     def forward(self, x: torch.FloatTensor) -> torch.FloatTensor:
         y = self.convs(x)
         y = self.pool(y)[:, :, 0, 0]
-        return self.fc(y)
+        y = self.fc(y)
+        y = self.sig(y)
+        return y
 
 
 class ConvBlock(nn.Module):
