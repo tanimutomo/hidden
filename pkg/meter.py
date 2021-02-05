@@ -7,18 +7,20 @@ class MultiAverageMeter(object):
         for name in names:
             setattr(self, name, AverageMeter())
 
-    def updates(self, losses: dict):
-        for name, value in losses.items():
+    def updates(self, values: dict):
+        for name, value in values.items():
             self.update(name, value)
     
     def update(self, name: str, value: float):
-        loss = getattr(self, name)
-        setattr(self, name, loss.update(value))
+        meter = getattr(self, name)
+        meter.update(value)
+        setattr(self, name, meter)
 
     def to_dict(self) -> dict:
         d = dict()
         for name in self.names:
             d[name] = getattr(self, name).avg
+        return d
 
 
 class AverageMeter(object):
