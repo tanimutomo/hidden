@@ -20,12 +20,12 @@ from transform import (
 from model import (
     HiddenModel,
 )
-from loss import (
-    HiddenLoss,
+from train_iterator import (
+    TrainIteratorConfig,
+    TrainIterator,
 )
 from trainer import (
-    Trainer,
-    TrainerConfig,
+    HiddenTrainer,
 )
 
 
@@ -85,14 +85,11 @@ def main(cfg):
     # if optimizer_sd:
     #     optimizer.load_state_dict(optimizer_sd)
 
-    # Loss fucntion
-    # criterion = get_loss(cfg.loss).to(device)
-    loss = HiddenLoss()
-    loss.to(device)
+    trainer = HiddenTrainer(device, optimizer)
 
-    trainer = Trainer(device, model, transformer, None)
-    trainer.train_setup(TrainerConfig(cfg.trainer.save_img_interval, cfg.trainer.test_interval))
-    trainer.train(train_loader, test_loader, loss, optimizer)
+    cfg = TrainIteratorConfig(cfg.trainer.save_img_interval, cfg.trainer.test_interval)
+    iterator = TrainIterator(cfg, model, None)
+    iterator.train(train_loader, test_loader, trainer)
 
     # experiment.save_model(trainer.model)
 
