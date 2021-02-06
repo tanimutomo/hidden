@@ -13,8 +13,11 @@ sys.path.append(os.path.abspath("."))
 from pkg.meter import (
     MultiAverageMeter,
 )
-from trainer import (
+from pkg.trainer import (
     Trainer,
+)
+from pkg.experiment import (
+    Experiment,
 )
 
 
@@ -24,16 +27,15 @@ class TrainIteratorConfig(typing.NamedTuple):
 
 
 class TrainIterator(object):
-    def __init__(self, cfg: TrainIteratorConfig, model: torch.nn.Module, experiment):
+    def __init__(self, cfg: TrainIteratorConfig, model: torch.nn.Module, experiment: Experiment):
         self.cfg = cfg
         self.model = model
-        # self.experiment = experiment
+        self.experiment: Experiment = experiment
 
     def train(self, train_loader: DataLoader, test_loader: DataLoader, trainer: Trainer):
         print("Start Training...")
 
         for epoch in range(self.cfg.epochs):
-            # self.experiment.epoch = epoch
             self.meter = MultiAverageMeter(trainer.loss_keys)
 
             self.model.train()
@@ -41,16 +43,16 @@ class TrainIterator(object):
                 loss_dict, img_dict = trainer.train(self.model, img, msg)
                 self.meter.updates(loss_dict)
                 print(f"step: {step}\n\tloss: {loss_dict}")
-                # self.experiment.report("train", loss_dict)
 
-            # self.experiment.save_image(img_dict, f"train_{itr}.png")
+            self.experiment.epoch_report(self.meter.to_dict, "train", epoch, self.cfg.epochs)
+            self.experiment.save_image(img_dict, epoch)
 
             if step % self.cfg.test_interval == 0:
                 loss_dict, img_dict = self.test(test_loader, trainer)
-                # self.experiment.report("test", loss_dict)
-                # self.experiment.save_image(save_inp, f"test_{itr}.png")
+                self.experiment.epoch_report(loss_dict, "test", epoch, self.cfg.epochs)
+                self.experiment.save_image(img_dict, epoch)
 
-            # self.experiment.save_ckpt(self.model, self.optimizer)
+            self.experiment.save_ckpt(_to_state_dict(self.model), self.)
 
     def test(self, test_loader: DataLoader, trainer: Trainer) -> typing.Tuple[dict, dict]:
         meter = MultiAverageMeter(trainer.loss_keys)
@@ -65,3 +67,9 @@ class TrainIterator(object):
                     pbar.set_postfix_str(f'loss={loss_dict["total"]:.4f}')
 
         return meter.to_dict, img_dict
+
+
+def _to_state_dict(model: torch.nn.Module) -> dict:
+    if isinstance(model, torch.nn.DataParallel):
+        return model.module.state_dict()
+    return model.state_dict()
