@@ -109,18 +109,19 @@ class Experiment:
     def _send_file_to_comet(self, path :str, epoch: int, overwrite=False):
         self.comet.log_asset(path, overwrite=overwrite, step=epoch)
 
-    def save_ckpt(self, model_sd: dict, optimizer_sd: dict, epoch: int):
-        checkpoint = {"epoch": epoch, "model": model_sd, "optimizer": optimizer_sd}
-        torch.save(checkpoint, CHECKPOINT_PATH)
+    def save_ckpt(self, ckpt: dict, epoch: int):
+        ckpt["epoch"] = epoch
+        torch.save(ckpt, CHECKPOINT_PATH)
         if self.comet:
             self._send_file_to_comet(CHECKPOINT_PATH, epoch, overwrite=True)
 
-    def load_ckpt(self):
+    def load_ckpt(self) -> typing.Tuple[int, dict]:
         if not self.cfg.resume_training:
             raise ValueError("This training is new experiment.")
         ckpt = torch.load(CHECKPOINT_PATH, map_location="cpu")
         shutil.copy(CHECKPOINT_PATH, CHECKPOINT_PATH+f"".bkup.{moment.now().format("YYYY-MMDD-HHmm-ss")}"")
-        return ckpt["epoch"]+1, ckpt["model"], ckpt["optimizer"]
+        epoch = ckpt.pop("epoch")
+        return epoch, ckpt
 
     def save_model(self, model_sd: dict):
         torch.save(model_sd, MODEL_PATH)

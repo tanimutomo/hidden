@@ -27,9 +27,8 @@ class TrainIteratorConfig(typing.NamedTuple):
 
 
 class TrainIterator(object):
-    def __init__(self, cfg: TrainIteratorConfig, model: torch.nn.Module, experiment: Experiment):
+    def __init__(self, cfg: TrainIteratorConfig, experiment: Experiment):
         self.cfg = cfg
-        self.model = model
         self.experiment: Experiment = experiment
 
     def train(self, train_loader: DataLoader, test_loader: DataLoader, trainer: Trainer):
@@ -38,9 +37,9 @@ class TrainIterator(object):
         for epoch in range(self.cfg.epochs):
             self.meter = MultiAverageMeter(trainer.loss_keys)
 
-            self.model.train()
+            trainer.model.train()
             for step, (img, msg) in enumerate(train_loader):
-                loss_dict, img_dict = trainer.train(self.model, img, msg)
+                loss_dict, img_dict = trainer.train(img, msg)
                 self.meter.updates(loss_dict)
                 print(f"step: {step}\n\tloss: {loss_dict}")
 
@@ -52,24 +51,19 @@ class TrainIterator(object):
                 self.experiment.epoch_report(loss_dict, "test", epoch, self.cfg.epochs)
                 self.experiment.save_image(img_dict, epoch)
 
-            self.experiment.save_ckpt(_to_state_dict(self.model), self.)
+            self.experiment.save_ckpt(trainer.get_checkpoint(), epoch)
 
     def test(self, test_loader: DataLoader, trainer: Trainer) -> typing.Tuple[dict, dict]:
         meter = MultiAverageMeter(trainer.loss_keys)
-        self.model.eval()
+        trainer.model.eval()
 
         with torch.no_grad():
             with tqdm(test_loader, ncols=80, leave=False) as pbar:
                 for itr, (img, msg) in enumerate(pbar):
-                    loss_dict, img_dict = trainer.test(self.model, img, msg)
+                    loss_dict, img_dict = trainer.test(img, msg)
                     meter.updates(loss_dict())
 
                     pbar.set_postfix_str(f'loss={loss_dict["total"]:.4f}')
 
         return meter.to_dict, img_dict
 
-
-def _to_state_dict(model: torch.nn.Module) -> dict:
-    if isinstance(model, torch.nn.DataParallel):
-        return model.module.state_dict()
-    return model.state_dict()
