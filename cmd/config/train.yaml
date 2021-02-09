@@ -15,22 +15,15 @@ data:
   train_path: "/Users/tanimu/data/coco2014/test"
   test_path: "/Users/tanimu/data/coco2014/test"
 
-model:
-  tmp: 1
+training:
+  epochs: 100
+  test_interval: 10
 
-optim:
-  method: Adam
-  weight_decay: 0
-  lr: 1e-3
-
-comet:
-  use: False
+experiment:
   tags: null
-  resume_key: null
-
-trainer:
-  save_img_interval: 10
-  test_interval: 10 # save ckpt when testing
+  resume_training: False
+  use_comet: False
+  resume_exp_key: null
 
 seed: null
 gpu_ids: []
