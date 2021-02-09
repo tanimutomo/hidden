@@ -23,19 +23,19 @@ CHECKPOINT_PATH = "checkpoint.pth"
 MODEL_PATH = "model.pth"
 
 
+class CometConfig(typing.NamedTuple):
+    project: str
+    workspace: str
+    api_key: str
+    resume_exp_key: str
+
+
 class ExperimentConfig(typing.NamedTuple):
     name: str
     tags: typing.Dict[str, str]
     comet: CometConfig
     use_comet: bool =False
     resume_training: bool =False
-
-
-class CometConfig(typing.NamedTuple):
-    project: str
-    workspace: str
-    api_key: str
-    resume_exp_key: str
 
 
 class Experiment:
@@ -49,8 +49,10 @@ class Experiment:
             if cfg.use_comet and not cfg.comet.resume_exp_key:
                 raise ValueError(f"cfg.comet.resume_exp_key is empty.")
 
-        if not cfg.use_comet:
+        if cfg.use_comet:
             self._set_comet()
+
+        print(f"Start experiment: {self.cfg.name}")
 
     def _set_comet(self):
         exp_args = dict(
@@ -72,11 +74,11 @@ class Experiment:
         if self.self.cfg.tags:
             comet.add_tags(self.self.cfg.tags)
 
-        print("Experiment:", self.self.cfg.name)
         self.comet = comet
 
     def log_experiment_params(self, params: dict):
-        self.comet.log_parameters(_to_flat_dict(params, dict()))
+        if self.cfg.use_comet:
+            self.comet.log_parameters(_to_flat_dict(params, dict()))
 
     def epoch_report(self, metrics: Metrics, mode: str, epoch: int, epochs: int, test=False):
         stdout = f"{mode.upper()} [{epoch:d}/{epochs:d}]  "
@@ -119,7 +121,7 @@ class Experiment:
         if not self.cfg.resume_training:
             raise ValueError("This training is new experiment.")
         ckpt = torch.load(CHECKPOINT_PATH, map_location="cpu")
-        shutil.copy(CHECKPOINT_PATH, CHECKPOINT_PATH+f"".bkup.{moment.now().format("YYYY-MMDD-HHmm-ss")}"")
+        shutil.copy(CHECKPOINT_PATH, CHECKPOINT_PATH+f".bkup.{moment.now().format('YYYY-MMDD-HHmm-ss')}")
         epoch = ckpt.pop("epoch")
         return epoch, ckpt
 
@@ -155,5 +157,5 @@ def _to_flat_dict(target :dict, fdict: dict):
 
 
 def _get_metrics_path(mode: str):
-    os.makedirs("metrics", exist_ok=true)
+    os.makedirs("metrics", exist_ok=True)
     return f"metrics/{mode}.csv"

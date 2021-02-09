@@ -37,7 +37,7 @@ class HiddenTrainer(Trainer):
     device: torch.device
     gpu_ids: typing.List[int]
     model: torch.nn.Module
-    ckpt: typing.Dict[str, object] ={}
+    ckpt: typing.Dict[str, object]
 
     lambda_i: float =0.7
     lambda_g: float =0.001
@@ -54,6 +54,7 @@ class HiddenTrainer(Trainer):
     ]
     img_keys = [
         "train",
+        "test",
     ]
 
     def __post_init__(self):
@@ -65,7 +66,8 @@ class HiddenTrainer(Trainer):
         self.discriminator_optimizer = torch.optim.Adam(
             self.discriminator.parameters(), lr=self.discriminator_lr)
 
-        self._load_checkpoint()
+        if self.ckpt:
+            self._load_checkpoint()
         self._to_device()
 
     def train(self, img, msg) -> typing.Tuple[typing.Dict, typing.Dict]:
@@ -131,7 +133,7 @@ class HiddenTrainer(Trainer):
             "model": err_model.item(),
         }
         imgs = {
-            "train": torch.stack([enc_img[0], img[0]]).cpu().detach(),
+            "test": torch.stack([enc_img[0], img[0]]).cpu().detach(),
         }
         return losses, imgs
 

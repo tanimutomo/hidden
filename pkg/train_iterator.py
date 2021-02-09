@@ -23,6 +23,7 @@ from pkg.experiment import (
 
 class TrainIteratorConfig(typing.NamedTuple):
     epochs: int =100
+    start_epoch: int =0
     test_interval: int =10
 
 
@@ -34,7 +35,7 @@ class TrainIterator(object):
     def train(self, train_loader: DataLoader, test_loader: DataLoader, trainer: Trainer):
         print("Start Training...")
 
-        for epoch in range(self.cfg.epochs):
+        for epoch in range(self.cfg.start_epoch, self.cfg.epochs):
             self.meter = MultiAverageMeter(trainer.loss_keys)
 
             trainer.model.train()
@@ -42,8 +43,9 @@ class TrainIterator(object):
                 loss_dict, img_dict = trainer.train(img, msg)
                 self.meter.updates(loss_dict)
                 print(f"step: {step}\n\tloss: {loss_dict}")
+                if step == 1: break
 
-            self.experiment.epoch_report(self.meter.to_dict, "train", epoch, self.cfg.epochs)
+            self.experiment.epoch_report(self.meter.to_dict(), "train", epoch, self.cfg.epochs)
             self.experiment.save_image(img_dict, epoch)
 
             if step % self.cfg.test_interval == 0:
@@ -65,5 +67,5 @@ class TrainIterator(object):
 
                     pbar.set_postfix_str(f'loss={loss_dict["total"]:.4f}')
 
-        return meter.to_dict, img_dict
+        return meter.to_dict(), img_dict
 

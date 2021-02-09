@@ -2,73 +2,89 @@ import os
 import sys
 
 import distortion
+import dotenv
 import hydra
 import omegaconf
 import torch
 import torch.nn as nn
 
-sys.path.append(os.path.abspath("./pkg"))
+sys.path.append(os.path.abspath("."))
 
-from experiment import (
+from pkg.experiment import (
     Experiment,
+    ExperimentConfig,
+    CometConfig,
 )
-from data import (
+from pkg.data import (
     WatermarkDataset
 )
-from transform import (
+from pkg.transform import (
     ImageTransformer,
 )
-from model import (
+from pkg.model import (
     HiddenModel,
 )
-from train_iterator import (
+from pkg.train_iterator import (
     TrainIteratorConfig,
     TrainIterator,
 )
-from trainer import (
+from pkg.trainer import (
     HiddenTrainer,
 )
 
 
+dotenv.load_dotenv()
+
 @hydra.main(config_name="config/train.yaml")
 def main(cfg):
     is_config_valid(cfg)
-    # if cfg.seed is not None:
-    #     set_seed(cfg.seed)
 
-    experiment = Experiment(cfg)
-    experiment.set_comet(os.path.join(hydra.utils.get_original_cwd(), '.comet'))
+    expcfg = ExperimentConfig(
+        name=cfg.experiment.name,
+        tags=cfg.experiment.tags,
+        use_comet=cfg.experiment.use_comet,
+        resume_training=cfg.experiment.resume_training,
+        comet=CometConfig(
+            project=os.environ["COMET_PROJECT"],
+            workspace=os.environ["COMET_WORKSPACE"],
+            api_key=os.environ["COMET_API_KEY"],
+            resume_exp_key=cfg.experiment.resume_exp_key,
+        )
+    )
+    experiment = Experiment(expcfg)
+    experiment.log_experiment_params(omegaconf.OmegaConf.to_container(cfg))
 
-    # Device
-    # device = torch.device(f'cuda:{cfg.gpu_ids[0]}')
-    device = torch.device('cpu')
+    device = torch.device("cpu")
 
     transformer = ImageTransformer(cfg.data.resol)
 
     train_loader = torch.utils.data.DataLoader(
         WatermarkDataset(cfg.data.train_path, cfg.data.msg_len, transformer.train),
-        cfg.data.batch_size,
-        True,
+        cfg.data.batch_size, True,
     )
     test_loader = torch.utils.data.DataLoader(
         WatermarkDataset(cfg.data.test_path, cfg.data.msg_len, transformer.test),
-        cfg.data.batch_size,
-        False,
+        cfg.data.batch_size, False,
     )
 
-    # resume training
-    # last_iter, model_sd, optimizer_sd = experiment.load_ckpt()
+    start_epoch = 0
+    ckpt = None
+    if cfg.experiment.resume_training:
+        start_epoch, ckpt = experiment.load_ckpt()
 
-    # model
     distortioner = distortion.Identity()
-    model = HiddenModel(cfg.model, distortioner)
-    trainer = HiddenTrainer(device, cfg.gpu_ids, model)
+    model = HiddenModel(distortioner)
+    trainer = HiddenTrainer(device=device, gpu_ids=cfg.gpu_ids, model=model, ckpt=ckpt)
 
-    cfg = TrainIteratorConfig(cfg.trainer.save_img_interval, cfg.trainer.test_interval)
-    iterator = TrainIterator(cfg, model, None)
+    trncfg = TrainIteratorConfig(
+        epochs=cfg.training.epochs,
+        start_epoch=start_epoch,
+        test_interval=cfg.training.test_interval,
+    )
+    iterator = TrainIterator(trncfg, experiment)
     iterator.train(train_loader, test_loader, trainer)
 
-    experiment.save_model(trainer.model)
+    experiment.save_model(trainer.model_state_dict())
 
 
 def is_config_valid(cfg):
