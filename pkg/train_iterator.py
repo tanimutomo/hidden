@@ -39,11 +39,13 @@ class TrainIterator(object):
             self.meter = MultiAverageMeter(trainer.loss_keys)
 
             trainer.model.train()
-            for step, (img, msg) in enumerate(train_loader):
-                loss_dict, img_dict = trainer.train(img, msg)
-                self.meter.updates(loss_dict)
-                print(f"step: {step}\n\tloss: {loss_dict}")
-                if step == 1: break
+            with tqdm(train_loader, ncols=80, leave=False) as pbar:
+                for step, (img, msg) in enumerate(pbar):
+                    loss_dict, img_dict = trainer.train(img, msg)
+                    self.meter.updates(loss_dict)
+
+                    pbar.set_postfix_str(f'loss={loss_dict[trainer.loss_keys[-1]]:.4f}')
+                    if step == 1: break # DEBUG
 
             self.experiment.epoch_report(self.meter.to_dict(), "train", epoch, self.cfg.epochs)
             self.experiment.save_image(img_dict, epoch)
@@ -61,11 +63,12 @@ class TrainIterator(object):
 
         with torch.no_grad():
             with tqdm(test_loader, ncols=80, leave=False) as pbar:
-                for itr, (img, msg) in enumerate(pbar):
+                for step, (img, msg) in enumerate(pbar):
                     loss_dict, img_dict = trainer.test(img, msg)
-                    meter.updates(loss_dict())
+                    meter.updates(loss_dict)
 
-                    pbar.set_postfix_str(f'loss={loss_dict["total"]:.4f}')
+                    pbar.set_postfix_str(f'loss={loss_dict[trainer.loss_keys[-1]]:.4f}')
+                    if step == 1: break # DEBUG
 
         return meter.to_dict(), img_dict
 
