@@ -130,11 +130,13 @@ class Experiment:
         if self.comet:
             self.send_file(MODEL_PATH)
 
-    def save_image(self, imgs: Images, epoch: int):
+    def save_image(self, imgs: Images, epoch: int, transformer=None):
         os.makedirs("images", exist_ok=True)
         for name, img in imgs.items():
             filename = f"{name}_{epoch}.png"
             path = os.path.join("images", filename)
+            if transformer:
+                img = transformer(img)
             torchvision.utils.save_image(img, path)
             self._send_image_to_comet(path, epoch)
     
