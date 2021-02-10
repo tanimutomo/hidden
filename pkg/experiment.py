@@ -84,7 +84,7 @@ class Experiment:
         stdout = f"{mode.upper()} [{epoch:d}/{epochs:d}]  "
 
         for name, value in metrics.items():
-            stdout += f"{name} = {value:.2f} / "
+            stdout += f"{name} = {value:.4f} / "
             if not self.comet: continue
             self.comet.log_metric( f"{mode}-{name}", value, step=epoch)
 
