@@ -60,7 +60,7 @@ def main(cfg):
         cfg.data.batch_size, cfg.data.msg_len, cfg.data.resol,
     )
 
-    start_epoch = 0
+    last_epoch = 0
     ckpt = None
     if cfg.experiment.resume_training:
         start_epoch, ckpt = experiment.load_ckpt()
@@ -73,7 +73,7 @@ def main(cfg):
 
     train_iter_cfg = TrainConfig(
         epochs=cfg.training.epochs,
-        start_epoch=start_epoch,
+        start_epoch=last_epoch+1,
         test_interval=cfg.training.test_interval,
     )
     train_iter(train_iter_cfg, train_cycle, datacon, experiment)
