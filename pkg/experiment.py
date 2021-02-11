@@ -1,5 +1,6 @@
 import comet_ml
 import csv
+from dataclasses import dataclass
 import os
 import shutil
 import sys
@@ -20,17 +21,19 @@ Metrics = typing.Dict[str, float]
 Images = typing.Dict[str, torch.FloatTensor]
 
 CHECKPOINT_PATH = "checkpoint.pth"
-MODEL_PATH = "model.pth"
+PARAMETERS_PATH = "parameters.pth"
 
 
-class CometConfig(typing.NamedTuple):
+@dataclass
+class CometConfig:
     project: str
     workspace: str
     api_key: str
     resume_exp_key: str
 
 
-class ExperimentConfig(typing.NamedTuple):
+@dataclass
+class ExperimentConfig:
     name: str
     tags: typing.Dict[str, str]
     comet: CometConfig
@@ -111,13 +114,13 @@ class Experiment:
     def _send_file_to_comet(self, path :str, epoch: int, overwrite=False):
         self.comet.log_asset(path, overwrite=overwrite, step=epoch)
 
-    def save_ckpt(self, ckpt: dict, epoch: int):
+    def save_checkpoint(self, ckpt: dict, epoch: int):
         ckpt["epoch"] = epoch
         torch.save(ckpt, CHECKPOINT_PATH)
         if self.comet:
             self._send_file_to_comet(CHECKPOINT_PATH, epoch, overwrite=True)
 
-    def load_ckpt(self) -> typing.Tuple[int, dict]:
+    def load_checkpoint(self) -> typing.Tuple[int, dict]:
         if not self.cfg.resume_training:
             raise ValueError("This training is new experiment.")
         ckpt = torch.load(CHECKPOINT_PATH, map_location="cpu")
@@ -125,10 +128,10 @@ class Experiment:
         epoch = ckpt.pop("epoch")
         return epoch, ckpt
 
-    def save_model(self, model_sd: dict):
-        torch.save(model_sd, MODEL_PATH)
+    def save_parameters(self, params: dict):
+        torch.save(params, PARAMETERS_PATH)
         if self.comet:
-            self.send_file(MODEL_PATH)
+            self.send_file(PARAMETERS_PATH)
 
     def save_image(self, imgs: Images, epoch: int, transformer=None):
         os.makedirs("images", exist_ok=True)
