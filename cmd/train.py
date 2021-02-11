@@ -15,11 +15,8 @@ from pkg.experiment import (
     ExperimentConfig,
     CometConfig,
 )
-from pkg.data import (
-    WatermarkDataset
-)
-from pkg.transform import (
-    ImageTransformer,
+from pkg.data_controller import (
+    DataController,
 )
 from pkg.model import (
     HiddenModel,
@@ -56,15 +53,9 @@ def main(cfg):
 
     device = torch.device("cpu")
 
-    transformer = ImageTransformer(cfg.data.resol)
-
-    train_loader = torch.utils.data.DataLoader(
-        WatermarkDataset(cfg.data.train_path, cfg.data.msg_len, transformer.train),
-        cfg.data.batch_size, True,
-    )
-    test_loader = torch.utils.data.DataLoader(
-        WatermarkDataset(cfg.data.test_path, cfg.data.msg_len, transformer.test),
-        cfg.data.batch_size, False,
+    datacon = DataController(
+        cfg.data.train_path, cfg.data.test_path,
+        cfg.data.batch_size, cfg.data.msg_len, cfg.data.resol,
     )
 
     start_epoch = 0
@@ -81,8 +72,8 @@ def main(cfg):
         start_epoch=start_epoch,
         test_interval=cfg.training.test_interval,
     )
-    iterator = TrainIterator(trncfg, experiment)
-    iterator.train(train_loader, test_loader, trainer)
+    iterator = TrainIterator(trncfg, experiment, datacon)
+    iterator.train(trainer)
 
     experiment.save_model(trainer.model_state_dict())
 
