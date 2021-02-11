@@ -36,7 +36,7 @@ dotenv.load_dotenv()
 
 @hydra.main(config_name="config/train.yaml")
 def main(cfg):
-    is_config_valid(cfg)
+    validate_config(cfg)
 
     expcfg = ExperimentConfig(
         name=cfg.experiment.name,
@@ -81,7 +81,7 @@ def main(cfg):
     experiment.save_parameters(train_cycle.get_parameters())
 
 
-def is_config_valid(cfg):
+def validate_config(cfg):
     print(omegaconf.OmegaConf.to_yaml(cfg))
 
 
