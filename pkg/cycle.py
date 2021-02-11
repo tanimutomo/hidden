@@ -9,14 +9,13 @@ from pkg.architecture import (
 )
 
 
-class Trainer:
+StateDict = typing.Dict[str, typing.Any]
 
+class Cycle:
+
+    model: torch.nn.Module
     loss_keys = []
     img_keys = []
-
-    def __init__(self):
-        # abstract class
-        pass
 
     def train(self, img, msg):
         raise NotImplementedError
@@ -27,23 +26,36 @@ class Trainer:
     def get_checkpoint(self) -> dict:
         raise NotImplementedError
 
-    def load_checkpoint(self, ckpt: dict) -> dict:
+    def get_parameters(self) -> dict:
         raise NotImplementedError
 
 
 @dataclass
-class HiddenTrainer(Trainer):
-
-    device: torch.device
-    gpu_ids: typing.List[int]
-    model: torch.nn.Module
-    ckpt: typing.Dict[str, object]
-
+class HiddenLossConfig:
     lambda_i: float =0.7
     lambda_g: float =0.001
+
+
+@dataclass
+class HiddenTrainConfig:
     discriminator_lr: float =1e-3
     optimizer_lr: float =1e-3
     optimizer_wd: float =0
+
+
+@dataclass
+class HiddenTestConfig:
+    nothing: typing.Any
+
+
+@dataclass
+class HiddenCycle(Cycle):
+
+    loss_cfg: HiddenLossConfig
+    model: torch.nn.Module
+
+    device: torch.device
+    gpu_ids: typing.List[int]
 
     loss_keys = [
         "message",
@@ -58,17 +70,29 @@ class HiddenTrainer(Trainer):
     ]
 
     def __post_init__(self):
-        self.optimizer = torch.optim.Adam(
-            self.model.parameters(), lr=self.optimizer_lr,
-            weight_decay=self.optimizer_wd,
-        )
         self.discriminator = Discriminator()
-        self.discriminator_optimizer = torch.optim.Adam(
-            self.discriminator.parameters(), lr=self.discriminator_lr)
 
-        if self.ckpt:
-            self._load_checkpoint()
-        self._to_device()
+    def setup_train(self, cfg: HiddenTrainConfig, ckpt: typing.Dict[str, object]):
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(), lr=cfg.optimizer_lr,
+            weight_decay=cfg.optimizer_wd,
+        )
+        self.discriminator_optimizer = torch.optim.Adam(
+            self.discriminator.parameters(), lr=cfg.discriminator_lr)
+
+        if ckpt:
+            self._load_checkpoint(ckpt)
+
+        self._setup()
+
+    def setup_test(self, cfg: HiddenTestConfig, params: typing.Dict[str, object]):
+        if params:
+            self._load_parameters(params)
+        self._setup()
+
+    def _setup(self):
+        self.model = _model_to_device(self.model, self.device, self.gpu_ids)
+        self.discriminator.to(self.device)
 
     def train(self, img, msg) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.train()
@@ -92,7 +116,7 @@ class HiddenTrainer(Trainer):
         err_g = F.binary_cross_entropy(self.discriminator(enc_img.detach()).view(-1), label)
         err_msg = F.mse_loss(pred_msg, msg)
         err_rec = F.mse_loss(enc_img, img)
-        err_model = err_msg + self.lambda_i*err_rec + self.lambda_g*err_g
+        err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
         err_model.backward()
 
         self.optimizer.step()
@@ -123,7 +147,7 @@ class HiddenTrainer(Trainer):
         err_g = F.binary_cross_entropy(self.discriminator(enc_img.detach()).view(-1), label)
         err_msg = F.mse_loss(pred_msg, msg)
         err_rec = F.mse_loss(enc_img, img)
-        err_model = err_msg + self.lambda_i*err_rec + self.lambda_g*err_g
+        err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
         losses = {
             "message": err_msg.item(),
@@ -137,28 +161,39 @@ class HiddenTrainer(Trainer):
         }
         return losses, imgs
 
-    def get_checkpoint(self):
+    def get_checkpoint(self) -> StateDict:
         return {
-            "model": self.model_state_dict(),
+            "model": _model_state_dict(self.model),
             "optimizer": self.optimizer.state_dict(),
             "discriminator": self.discriminator.state_dict(),
             "discriminator_optimizer": self.discriminator_optimizer.state_dict(),
         }
 
-    def model_state_dict(self) -> dict:
-        if isinstance(self.model, torch.nn.DataParallel):
-            return self.model.module.state_dict()
-        return self.model.state_dict()
+    def _load_checkpoint(self, ckpt: StateDict):
+        self.model.load_state_dict(ckpt["model"])
+        self.optimizer.load_state_dict(ckpt["optimizer"])
+        self.discriminator.load_state_dict(ckpt["discriminator"])
+        self.discriminator_optimizer.load_state_dict(ckpt["discriminator_optimizer"])
 
-    def _load_checkpoint(self):
-        self.model.load_state_dict(self.ckpt["model"])
-        self.optimizer.load_state_dict(self.ckpt["optimizer"])
-        self.discriminator.load_state_dict(self.ckpt["discriminator"])
-        self.discriminator_optimizer.load_state_dict(self.ckpt["discriminator_optimizer"])
+    def get_parameters(self) -> StateDict:
+        return {
+            "model": _model_state_dict(self.model),
+            "discriminator": self.discriminator.state_dict(),
+        }
 
-    def _to_device(self):
-        self.model.to(self.device)
-        self.discriminator.to(self.device)
-        if len(self.gpu_ids) > 1:
-            model = torch.nn.DataParallel(model, device_ids=self.gpu_ids)
+    def _load_parameters(self, params: StateDict):
+        self.model.load_state_dict(params["model"])
+        self.discriminator.load_state_dict(params["discriminator"])
 
+
+def _model_state_dict(model: torch.nn.Module) -> dict:
+    if isinstance(model, torch.nn.DataParallel):
+        return model.module.state_dict()
+    return model.state_dict()
+
+
+def _model_to_device(model: torch.nn.Module, device: torch.device, device_ids: typing.List[int]) -> torch.nn.Module:
+    model.to(device)
+    if len(device_ids) > 1:
+        model = torch.nn.DataParallel(model, device_ids=device_ids)
+    return model
