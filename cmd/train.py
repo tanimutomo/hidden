@@ -21,12 +21,14 @@ from pkg.data_controller import (
 from pkg.model import (
     HiddenModel,
 )
-from pkg.train_iterator import (
-    TrainIteratorConfig,
-    TrainIterator,
+from pkg.iterator import (
+    TrainConfig,
+    train_iter,
 )
-from pkg.trainer import (
-    HiddenTrainer,
+from pkg.cycle import (
+    HiddenCycle,
+    HiddenLossConfig,
+    HiddenTrainConfig,
 )
 
 
@@ -65,17 +67,18 @@ def main(cfg):
 
     distortioner = distortion.Identity()
     model = HiddenModel(distortioner)
-    trainer = HiddenTrainer(device=device, gpu_ids=cfg.gpu_ids, model=model, ckpt=ckpt)
 
-    trncfg = TrainIteratorConfig(
+    train_cycle = HiddenCycle(HiddenLossConfig(), model, device, cfg.gpu_ids)
+    train_cycle.setup_train(HiddenTrainConfig(), ckpt)
+
+    train_iter_cfg = TrainConfig(
         epochs=cfg.training.epochs,
         start_epoch=start_epoch,
         test_interval=cfg.training.test_interval,
     )
-    iterator = TrainIterator(trncfg, experiment, datacon)
-    iterator.train(trainer)
+    train_iter(train_iter_cfg, train_cycle, datacon, experiment)
 
-    experiment.save_model(trainer.model_state_dict())
+    experiment.save_parameters(train_cycle.get_parameters())
 
 
 def is_config_valid(cfg):
