@@ -31,6 +31,9 @@ from pkg.cycle import (
     HiddenLossConfig,
     HiddenTrainConfig,
 )
+from pkg.seed import (
+    set_seed,
+)
 
 
 dotenv.load_dotenv()
@@ -38,6 +41,7 @@ dotenv.load_dotenv()
 @hydra.main(config_name="config/train.yaml")
 def main(cfg):
     validate_config(cfg)
+    if cfg.seed: set_seed(cfg.seed)
 
     expcfg = ExperimentConfig(
         name=cfg.experiment.name,
@@ -54,7 +58,7 @@ def main(cfg):
     experiment = Experiment(expcfg)
     experiment.log_experiment_params(omegaconf.OmegaConf.to_container(cfg))
 
-    device = torch.device("cpu")
+    device = torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu")
 
     datacon = DataController(
         cfg.data.train_path, cfg.data.test_path,
