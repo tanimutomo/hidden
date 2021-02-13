@@ -1,0 +1,25 @@
+hydra:
+  run:
+    dir: log/${mode}/${experiment.name}
+
+mode: test
+
+defaults:
+  - config/experiment@experiment: default
+
+data:
+  resol: 128
+  gray: False
+  msg_len: 30
+  batch_size: 12
+  train_path: "/Users/tanimu/data/coco2014/test"
+  test_path: "/Users/tanimu/data/coco2014/test"
+
+experiment:
+  tags: null
+  use_comet: False
+  model_path: ???
+  relative_model_path: ../../../${experiment.model_path}
+
+seed: null
+gpu_ids: []
