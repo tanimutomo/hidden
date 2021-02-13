@@ -29,7 +29,7 @@ class CometConfig:
     project: str
     workspace: str
     api_key: str
-    resume_exp_key: str
+    resume_exp_key: str =""
 
 
 @dataclass
@@ -47,8 +47,8 @@ class Experiment:
         self.comet: comet_ml.BaseExperiment = None
 
         if cfg.resume_training:
-            if not os.path.exists(self.cfg.name):
-                raise ValueError(f"The specified experiment ({self.cfg.name}) is not existed.")
+            if not os.path.exists("train.log"):
+                raise ValueError(f"The specified experiment is seems to be a new experiment.")
             if cfg.use_comet and not cfg.comet.resume_exp_key:
                 raise ValueError(f"cfg.comet.resume_exp_key is empty.")
 
@@ -132,6 +132,9 @@ class Experiment:
         torch.save(params, PARAMETERS_PATH)
         if self.comet:
             self.send_file(PARAMETERS_PATH)
+
+    def load_parameters(self, path: str) -> dict:
+        return torch.load(path, map_location="cpu")
 
     def save_image(self, imgs: Images, epoch: int, transformer=None):
         os.makedirs("images", exist_ok=True)
