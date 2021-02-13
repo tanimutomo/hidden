@@ -35,7 +35,7 @@ def train_iter(cfg: TrainConfig, trainer: Cycle, datacon: DataController, experi
     print("Start Training...")
 
     for epoch in range(cfg.start_epoch, cfg.epochs+1):
-        meter = MultiAverageMeter(trainer.loss_keys)
+        meter = MultiAverageMeter(trainer.metric_keys)
 
         trainer.model.train()
         with tqdm(datacon.train_loader, ncols=80, leave=False) as pbar:

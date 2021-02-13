@@ -14,7 +14,7 @@ StateDict = typing.Dict[str, typing.Any]
 class Cycle:
 
     model: torch.nn.Module
-    loss_keys = []
+    metric_keys = []
     img_keys = []
 
     def train(self, img, msg):
@@ -57,7 +57,7 @@ class HiddenCycle(Cycle):
     device: torch.device
     gpu_ids: typing.List[int]
 
-    loss_keys = [
+    metric_keys = [
         "message",
         "reconstruction",
         "adversarial_generator",
