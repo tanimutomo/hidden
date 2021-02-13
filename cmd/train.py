@@ -63,7 +63,7 @@ def main(cfg):
     last_epoch = 0
     ckpt = None
     if cfg.experiment.resume_training:
-        start_epoch, ckpt = experiment.load_ckpt()
+        last_epoch, ckpt = experiment.load_checkpoint()
 
     distortioner = distortion.Identity()
     model = HiddenModel(distortioner)
