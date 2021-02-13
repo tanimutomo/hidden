@@ -1,6 +1,7 @@
 import os
 import sys
 
+import comet_ml
 import distortion
 import dotenv
 import hydra

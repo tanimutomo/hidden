@@ -1,10 +1,10 @@
-import comet_ml
 import csv
 from dataclasses import dataclass
 import os
 import shutil
 import sys
 
+import comet_ml
 import moment
 import torch
 import torchvision
@@ -44,7 +44,7 @@ class ExperimentConfig:
 class Experiment:
     def __init__(self, cfg: ExperimentConfig):
         self.cfg = cfg
-        self.comet: comet_ml.BaseExperiment = None
+        self.comet: comet_ml.Experiment = None
 
         if cfg.resume_training:
             if not os.path.exists("train.log"):
@@ -64,20 +64,17 @@ class Experiment:
             api_key=self.cfg.comet.api_key,
             auto_param_logging=False,
             auto_metric_logging=False,
-            log_env_host=True,
             parse_args=False
         )
         if self.cfg.comet.resume_exp_key:
             exp_args["previous_experiment"] = self.cfg.comet.resume_key
-            comet = comet_ml.ExistingExperiment(**exp_args)
+            self.comet = comet_ml.ExistingExperiment(**exp_args)
         else:
-            comet = comet_ml.Experiment(**exp_args)
-            comet.set_name(self.cfg.name)
+            self.comet = comet_ml.Experiment(**exp_args)
+            self.comet.set_name(self.cfg.name)
 
         if self.self.cfg.tags:
-            comet.add_tags(self.self.cfg.tags)
-
-        self.comet = comet
+            self.comet.add_tags(self.self.cfg.tags)
 
     def log_experiment_params(self, params: dict):
         if self.cfg.use_comet:
