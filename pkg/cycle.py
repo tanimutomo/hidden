@@ -121,7 +121,7 @@ class HiddenCycle(Cycle):
 
         self.optimizer.step()
 
-        losses = {
+        metrics = {
             "message": err_msg.item(),
             "reconstruction": err_rec.item(),
             "adversarial_generator": err_g.item(),
@@ -131,7 +131,7 @@ class HiddenCycle(Cycle):
         imgs = {
             "train": torch.stack([enc_img[0], img[0]]).cpu().detach(),
         }
-        return losses, imgs
+        return metrics, imgs
 
     def test(self, img, msg) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.eval()
@@ -149,7 +149,7 @@ class HiddenCycle(Cycle):
         err_rec = F.mse_loss(enc_img, img)
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
-        losses = {
+        metrics = {
             "message": err_msg.item(),
             "reconstruction": err_rec.item(),
             "adversarial_generator": err_g.item(),
@@ -159,7 +159,7 @@ class HiddenCycle(Cycle):
         imgs = {
             "test": torch.stack([enc_img[0], img[0]]).cpu().detach(),
         }
-        return losses, imgs
+        return metrics, imgs
 
     def get_checkpoint(self) -> StateDict:
         return {

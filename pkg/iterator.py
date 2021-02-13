@@ -40,10 +40,10 @@ def train_iter(cfg: TrainConfig, trainer: Cycle, datacon: DataController, experi
         trainer.model.train()
         with tqdm(datacon.train_loader, ncols=80, leave=False) as pbar:
             for step, (img, msg) in enumerate(pbar):
-                loss_dict, img_dict = trainer.train(img, msg)
-                meter.updates(loss_dict)
+                metric_dict, img_dict = trainer.train(img, msg)
+                meter.updates(metric_dict)
 
-                pbar.set_postfix_str(f'loss={loss_dict[trainer.loss_keys[-1]]:.4f}')
+                pbar.set_postfix_str(f'metric={metric_dict[trainer.metric_keys[-1]]:.4f}')
                 if step == 1: break # DEBUG
 
         experiment.epoch_report(meter.to_dict(), "train", epoch, cfg.epochs)
@@ -56,18 +56,18 @@ def train_iter(cfg: TrainConfig, trainer: Cycle, datacon: DataController, experi
 
 
 def test_iter(tester: Cycle, datacon: DataController, experiment: Experiment, epoch: int =0, epochs: int =0):
-    meter = MultiAverageMeter(tester.loss_keys)
+    meter = MultiAverageMeter(tester.metric_keys)
     tester.model.eval()
 
     with torch.no_grad():
         with tqdm(datacon.test_loader, ncols=80, leave=False) as pbar:
             for step, (img, msg) in enumerate(pbar):
-                loss_dict, img_dict = tester.test(img, msg)
-                meter.updates(loss_dict)
+                metric_dict, img_dict = tester.test(img, msg)
+                meter.updates(metric_dict)
 
-                pbar.set_postfix_str(f'loss={loss_dict[tester.loss_keys[-1]]:.4f}')
+                pbar.set_postfix_str(f'metric={metric_dict[tester.metric_keys[-1]]:.4f}')
                 if step == 1: break # DEBUG
 
-    experiment.epoch_report(loss_dict, "test", epoch, epochs)
+    experiment.epoch_report(metric_dict, "test", epoch, epochs)
     experiment.save_image(img_dict, epoch, datacon.img_post_transformer)
 
