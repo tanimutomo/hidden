@@ -12,8 +12,8 @@ data:
   gray: False
   msg_len: 30
   batch_size: 12
-  train_path: "/Users/tanimu/data/coco2014/test"
-  test_path: "/Users/tanimu/data/coco2014/test"
+  train_path: /home/tanimu/data/coco2014/test
+  test_path: /home/tanimu/data/coco2014/test
 
 training:
   epochs: 100
