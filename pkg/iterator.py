@@ -44,7 +44,6 @@ def train_iter(cfg: TrainConfig, trainer: Cycle, datacon: DataController, experi
                 meter.updates(metric_dict)
 
                 pbar.set_postfix_str(f'metric={metric_dict[trainer.metric_keys[-1]]:.4f}')
-                if step == 1: break # DEBUG
 
         experiment.epoch_report(meter.to_dict(), "train", epoch, cfg.epochs)
         experiment.save_image(img_dict, epoch, datacon.img_post_transformer)
@@ -66,8 +65,6 @@ def test_iter(tester: Cycle, datacon: DataController, experiment: Experiment, ep
                 meter.updates(metric_dict)
 
                 pbar.set_postfix_str(f'metric={metric_dict[tester.metric_keys[-1]]:.4f}')
-                if step == 1: break # DEBUG
 
     experiment.epoch_report(metric_dict, "test", epoch, epochs)
     experiment.save_image(img_dict, epoch, datacon.img_post_transformer)
-
