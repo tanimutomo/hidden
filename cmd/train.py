@@ -83,7 +83,7 @@ def main(cfg):
     )
     train_iter(train_iter_cfg, train_cycle, datacon, experiment)
 
-    experiment.save_parameters(train_cycle.get_parameters())
+    experiment.save_parameters(train_cycle.get_parameters(), cfg.training.epochs)
 
 
 def validate_config(cfg):

@@ -73,8 +73,8 @@ class Experiment:
             self.comet = comet_ml.Experiment(**exp_args)
             self.comet.set_name(self.cfg.name)
 
-        if self.self.cfg.tags:
-            self.comet.add_tags(self.self.cfg.tags)
+        if self.cfg.tags:
+            self.comet.add_tags(self.cfg.tags)
 
     def log_experiment_params(self, params: dict):
         if self.cfg.use_comet:
@@ -125,10 +125,10 @@ class Experiment:
         epoch = ckpt.pop("epoch")
         return epoch, ckpt
 
-    def save_parameters(self, params: dict):
+    def save_parameters(self, params: dict, epoch: int):
         torch.save(params, PARAMETERS_PATH)
         if self.comet:
-            self.send_file(PARAMETERS_PATH)
+            self._send_file_to_comet(PARAMETERS_PATH, epoch)
 
     def load_parameters(self, path: str) -> dict:
         return torch.load(path, map_location="cpu")
