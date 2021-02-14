@@ -38,9 +38,9 @@ class HiddenLossConfig:
 
 @dataclass
 class HiddenTrainConfig:
-    discriminator_lr: float =1e-3
     optimizer_lr: float =1e-3
     optimizer_wd: float =0
+    discriminator_lr: float =1e-3
 
 
 @dataclass

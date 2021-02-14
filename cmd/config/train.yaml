@@ -11,12 +11,12 @@ data:
   resol: 128
   gray: False
   msg_len: 30
-  batch_size: 12
-  train_path: /home/tanimu/data/coco2014/test
+  batch_size: 48 # 12
+  train_path: /home/tanimu/data/coco2014/train
   test_path: /home/tanimu/data/coco2014/test
 
 training:
-  epochs: 100
+  epochs: 200
   test_interval: 10
 
 experiment:
@@ -24,6 +24,11 @@ experiment:
   resume_training: False
   use_comet: False
   resume_exp_key: null
+
+train:
+  optimizer_lr: 1e-2 # 1e-3
+  optimizer_wd: 0.0
+  discriminator_lr: 1e-2 # 1e-3
 
 seed: null
 gpu_ids: []

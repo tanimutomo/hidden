@@ -32,8 +32,6 @@ class TrainConfig:
 
 
 def train_iter(cfg: TrainConfig, trainer: Cycle, datacon: DataController, experiment: Experiment):
-    print("Start Training...")
-
     for epoch in range(cfg.start_epoch, cfg.epochs+1):
         meter = MultiAverageMeter(trainer.metric_keys)
 

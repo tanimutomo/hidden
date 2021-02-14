@@ -74,14 +74,23 @@ def main(cfg):
     model = HiddenModel(distortioner)
 
     train_cycle = HiddenCycle(HiddenLossConfig(), model, device, cfg.gpu_ids)
-    train_cycle.setup_train(HiddenTrainConfig(), ckpt)
+    train_cycle.setup_train(
+        HiddenTrainConfig(
+            cfg.train.optimizer_lr,
+            cfg.train.optimizer_wd,
+            cfg.train.discriminator_lr,
+        ),
+        ckpt,
+    )
 
     train_iter_cfg = TrainConfig(
         epochs=cfg.training.epochs,
         start_epoch=last_epoch+1,
         test_interval=cfg.training.test_interval,
     )
+    print("Start Training...")
     train_iter(train_iter_cfg, train_cycle, datacon, experiment)
+    print("End Training")
 
     experiment.save_parameters(train_cycle.get_parameters(), cfg.training.epochs)
 
