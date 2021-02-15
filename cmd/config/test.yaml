@@ -11,9 +11,9 @@ data:
   resol: 128
   gray: False
   msg_len: 30
-  batch_size: 12
-  train_path: "/Users/tanimu/data/coco2014/test"
-  test_path: "/Users/tanimu/data/coco2014/test"
+  batch_size: 192 # 12
+  train_path: /home/tanimu/data/coco2014/train
+  test_path: /home/tanimu/data/coco2014/test
 
 experiment:
   tags: null
