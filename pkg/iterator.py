@@ -46,7 +46,7 @@ def train_iter(cfg: TrainConfig, trainer: Cycle, datacon: DataController, experi
         experiment.epoch_report(meter.to_dict(), "train", epoch, cfg.epochs)
         experiment.save_image(img_dict, epoch, datacon.img_post_transformer)
 
-        if step % cfg.test_interval == 0:
+        if epoch % cfg.test_interval == 0:
             test_iter(trainer, datacon, experiment, epoch, cfg.epochs)
 
         experiment.save_checkpoint(trainer.get_checkpoint(), epoch)
