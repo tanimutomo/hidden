@@ -4,9 +4,8 @@ import typing
 import kornia
 from PIL import Image
 import torch
-from torchvision import (
-    transforms,
-)
+from torchvision import transforms
+
 
 @dataclass
 class ImageTransformer(object):

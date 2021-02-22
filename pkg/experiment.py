@@ -13,9 +13,6 @@ import torchvision
 
 sys.path.append(os.path.abspath("."))
 
-from pkg.meter import (
-    AverageMeter
-)
 
 Metrics = typing.Dict[str, float]
 Images = typing.Dict[str, torch.FloatTensor]

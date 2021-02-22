@@ -2,12 +2,9 @@ import typing
 from dataclasses import dataclass
 
 import torch
-import torch.nn.functional as F
 
-from pkg.architecture import (
-    Discriminator,
-)
-from pkg import metric
+import pkg.architecture
+import pkg.metric
 
 
 StateDict = typing.Dict[str, typing.Any]
@@ -72,7 +69,7 @@ class HiddenCycle(Cycle):
     ]
 
     def __post_init__(self):
-        self.discriminator = Discriminator()
+        self.discriminator = pkg.architecture.Discriminator()
 
     def setup_train(self, cfg: HiddenTrainConfig, ckpt: typing.Dict[str, object]):
         self.optimizer = torch.optim.Adam(
@@ -103,28 +100,28 @@ class HiddenCycle(Cycle):
 
         self.discriminator.zero_grad()
 
-        err_d_real = metric.adversarial_real_loss(self.discriminator, img, self.device)
+        err_d_real = pkg.metric.adversarial_real_loss(self.discriminator, img, self.device)
         err_d_real.backward()
 
         enc_img, pred_msg = self.model(img, msg)
 
-        err_d_fake = metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
+        err_d_fake = pkg.metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
         err_d_fake.backward()
 
         self.discriminator_optimizer.step()
 
         self.model.zero_grad()
 
-        err_g = metric.adversarial_generator_loss(self.discriminator, enc_img, self.device)
-        err_msg = metric.message_loss(pred_msg, msg)
-        err_rec = metric.reconstruction_loss(enc_img, img)
+        err_g = pkg.metric.adversarial_generator_loss(self.discriminator, enc_img, self.device)
+        err_msg = pkg.metric.message_loss(pred_msg, msg)
+        err_rec = pkg.metric.reconstruction_loss(enc_img, img)
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
         err_model.backward()
 
         self.optimizer.step()
 
-        acc_msg = metric.message_accuracy(pred_msg, msg)
+        acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
 
         metrics = {
             "message": err_msg.item(),
@@ -145,16 +142,16 @@ class HiddenCycle(Cycle):
         img, msg = img.to(self.device), msg.to(self.device)
         enc_img, pred_msg = self.model(img, msg)
 
-        err_d_real = metric.adversarial_real_loss(self.discriminator, img, self.device)
-        err_d_fake = metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
+        err_d_real = pkg.metric.adversarial_real_loss(self.discriminator, img, self.device)
+        err_d_fake = pkg.metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
 
-        err_g = metric.adversarial_generator_loss(self.discriminator, enc_img, self.device)
-        err_msg = F.mse_loss(pred_msg, msg)
-        err_rec = F.mse_loss(enc_img, img)
+        err_g = pkg.metric.adversarial_generator_loss(self.discriminator, enc_img, self.device)
+        err_msg = pkg.metric.message_loss(pred_msg, msg)
+        err_rec = pkg.metric.reconstruction_loss(enc_img, img)
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
-        acc_msg = metric.message_accuracy(pred_msg, msg)
+        acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
 
         metrics = {
             "message": err_msg.item(),

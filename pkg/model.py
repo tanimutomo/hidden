@@ -8,18 +8,15 @@ import torch.nn as nn
 
 sys.path.append(os.path.abspath("."))
 
-from pkg.architecture import (
-    Encoder,
-    Decoder,
-)
+import pkg.architecture
 
 
 class HiddenModel(nn.Module):
     def __init__(self, distortioner: distortion.Distortioner):
         super().__init__()
-        self.encoder = Encoder()
+        self.encoder = pkg.architecture.Encoder()
         self.distortioner = distortioner
-        self.decoder = Decoder()
+        self.decoder = pkg.architecture.Decoder()
 
     def forward(self, img: torch.FloatTensor, msg: torch.FloatTensor) -> typing.Tuple[torch.FloatTensor, torch.FloatTensor]:
         enc_img = self.encoder(img, msg)

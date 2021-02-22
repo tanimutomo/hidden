@@ -1,10 +1,8 @@
 import os
 import io
 
-import PIL as pil
-import numpy as np
+from PIL import Image
 import torch
-import torchvision
 
 
 class WatermarkDataset(torch.utils.data.Dataset):
@@ -26,7 +24,7 @@ class WatermarkDataset(torch.utils.data.Dataset):
         return sum(os.path.isfile(os.path.join(self.root_dir, name)) for name in os.listdir(self.root_dir))
 
     def __getitem__(self, idx: int):
-        img = pil.Image.open(os.path.join(self.root_dir, self.files[idx]))
+        img = Image.open(os.path.join(self.root_dir, self.files[idx]))
         msg = torch.rand(self.msg_len).round()
         if self.img_transform:
             img = self.img_transform(img)
