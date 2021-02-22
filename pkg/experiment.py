@@ -3,13 +3,13 @@ from dataclasses import dataclass
 import os
 import shutil
 import sys
+import yaml
+import typing
 
 import comet_ml
 import moment
 import torch
 import torchvision
-import yaml
-import typing
 
 sys.path.append(os.path.abspath("."))
 
