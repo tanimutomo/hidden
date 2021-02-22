@@ -43,7 +43,8 @@ def main(cfg):
 
     datacon = pkg.data_controller.DataController(
         cfg.data.train_path, cfg.data.test_path,
-        cfg.data.batch_size, cfg.data.msg_len, cfg.data.resol,
+        cfg.data.train_batch_size, cfg.data.test_batch_size,
+        cfg.data.msg_len, cfg.data.resol,
     )
 
     params = experiment.load_parameters(cfg.experiment.relative_model_path)

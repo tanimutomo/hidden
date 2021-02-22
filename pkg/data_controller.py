@@ -17,7 +17,8 @@ import pkg.dataset
 class DataController:
     train_dataset_path: str
     test_dataset_path: str
-    batch_size: int
+    train_batch_size: int
+    test_batch_size: int
     msg_len: int
     resol: int
 
