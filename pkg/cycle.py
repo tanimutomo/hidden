@@ -56,12 +56,12 @@ class HiddenCycle(Cycle):
     gpu_ids: typing.List[int]
 
     metric_keys = [
-        "message",
-        "reconstruction",
-        "adversarial_generator",
-        "adversarial_discriminator",
-        "model",
-        "accuracy_message",
+        "message_loss",
+        "reconstruction_loss",
+        "adversarial_generator_loss",
+        "adversarial_discriminator_loss",
+        "model_loss",
+        "message_accuracy",
     ]
     img_keys = [
         "train",
@@ -124,12 +124,12 @@ class HiddenCycle(Cycle):
         acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
 
         metrics = {
-            "message": err_msg.item(),
-            "reconstruction": err_rec.item(),
-            "adversarial_generator": err_g.item(),
-            "adversarial_discriminator": err_d_real.item() + err_d_fake.item(),
-            "model": err_model.item(),
-            "accuracy_message": acc_msg.item()
+            "message_loss": err_msg.item(),
+            "reconstruction_loss": err_rec.item(),
+            "adversarial_generator_loss": err_g.item(),
+            "adversarial_discriminator_loss": err_d_real.item() + err_d_fake.item(),
+            "model_loss": err_model.item(),
+            "message_accuracy": acc_msg.item()
         }
         imgs = {
             "train": torch.stack([enc_img[0], img[0]]).cpu().detach(),
@@ -154,12 +154,12 @@ class HiddenCycle(Cycle):
         acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
 
         metrics = {
-            "message": err_msg.item(),
-            "reconstruction": err_rec.item(),
-            "adversarial_generator": err_g.item(),
-            "adversarial_discriminator": err_d_real.item() + err_d_fake.item(),
-            "model": err_model.item(),
-            "accuracy_message": acc_msg.item()
+            "message_loss": err_msg.item(),
+            "reconstruction_loss": err_rec.item(),
+            "adversarial_generator_loss": err_g.item(),
+            "adversarial_discriminator_loss": err_d_real.item() + err_d_fake.item(),
+            "model_loss": err_model.item(),
+            "message_accuracy": acc_msg.item()
         }
         imgs = {
             "test": torch.stack([enc_img[0], img[0]]).cpu().detach(),
