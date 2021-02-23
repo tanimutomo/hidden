@@ -33,7 +33,7 @@ def _adversarial_loss(discriminator, img, device, label_value):
 
 
 def message_accuracy(pred_msg, msg):
-    bin_pred_msg = torch.round(pred_msg)
+    bin_pred_msg = torch.round(torch.clamp(pred_msg, 0, 1))
     err_count = torch.sum(torch.abs(bin_pred_msg - msg), dim=1)
     return torch.mean(1 - (err_count / msg.shape[1]))
 
