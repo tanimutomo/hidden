@@ -27,7 +27,7 @@ def train_iter(
     cfg: TrainConfig,
     trainer: pkg.cycle.Cycle,
     datactl: pkg.data_controller.DataController,
-    exp: pkg.experiment.Experiment,
+    experiment: pkg.experiment.Experiment,
 ):
     for epoch in range(cfg.start_epoch, cfg.epochs+1):
         meter = pkg.meter.MultiAverageMeter(trainer.metric_keys)
@@ -40,19 +40,19 @@ def train_iter(
 
                 pbar.set_postfix_str(f'metric={metric_dict[trainer.metric_keys[-1]]:.4f}')
 
-        exp.epoch_report(meter.to_dict(), "train", epoch, cfg.epochs)
-        exp.save_image(img_dict, epoch, datactl.img_post_transformer)
+        experiment.epoch_report(meter.to_dict(), "train", epoch, cfg.epochs)
+        experiment.save_image(img_dict, epoch, datactl.img_post_transformer)
 
         if epoch % cfg.test_interval == 0:
-            test_iter(trainer, datactl, exp, epoch, cfg.epochs)
+            test_iter(trainer, datactl, experiment, epoch, cfg.epochs)
 
-        exp.save_checkpoint(trainer.get_checkpoint(), epoch)
+        experiment.save_checkpoint(trainer.get_checkpoint(), epoch)
 
 
 def test_iter(
     tester: pkg.cycle.Cycle,
     datactl: pkg.data_controller.DataController,
-    exp: pkg.experiment.Experiment,
+    experiment: pkg.experiment.Experiment,
     epoch: int =0,
     epochs: int =0
 ):
@@ -67,5 +67,5 @@ def test_iter(
 
                 pbar.set_postfix_str(f'metric={metric_dict[tester.metric_keys[-1]]:.4f}')
 
-    exp.epoch_report(metric_dict, "test", epoch, epochs)
-    exp.save_image(img_dict, epoch, datactl.img_post_transformer)
+    experiment.epoch_report(metric_dict, "test", epoch, epochs)
+    experiment.save_image(img_dict, epoch, datactl.img_post_transformer)

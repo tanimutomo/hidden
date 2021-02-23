@@ -41,21 +41,29 @@ def main(cfg):
 
     device = torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu")
 
-    datacon = pkg.data_controller.DataController(
-        cfg.data.train_path, cfg.data.test_path,
-        cfg.data.train_batch_size, cfg.data.test_batch_size,
-        cfg.data.msg_len, cfg.data.resol,
+    datactl = pkg.data_controller.DataController(
+        msg_len=cfg.data.msg_len,
+        resol=cfg.data.resol,
+        test_dataset_path=cfg.data.test_path,
+        test_batch_size=cfg.data.test_batch_size,
+        require_trainset=False,
     )
 
     params = experiment.load_parameters(cfg.experiment.relative_model_path)
 
     distortioner = distortion.Identity()
-    model = pkg.model.HiddenModel(distortioner)
+    model = pkg.model.HiddenModel(distortioner=distortioner)
 
-    test_cycle = pkg.cycle.HiddenCycle(pkg.cycle.HiddenLossConfig(), model, device, cfg.gpu_ids)
-    test_cycle.setup_test(pkg.cycle.HiddenTestConfig, params)
+    test_cycle = pkg.cycle.HiddenCycle(
+        loss_cfg=pkg.cycle.HiddenLossConfig(),
+        model=model, device=device, gpu_ids=cfg.gpu_ids
+    )
+    test_cycle.setup_test(cfg=pkg.cycle.HiddenTestConfig, params=params)
 
-    pkg.iterator.test_iter(test_cycle, datacon, experiment)
+    pkg.iterator.test_iter(
+        tester=test_cycle, datactl=datactl,
+        experiment=experiment,
+    )
 
 
 def validate_config(cfg):

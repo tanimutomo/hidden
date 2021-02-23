@@ -43,10 +43,13 @@ def main(cfg):
 
     device = torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu")
 
-    datacon = pkg.data_controller.DataController(
-        cfg.data.train_path, cfg.data.test_path,
-        cfg.data.train_batch_size, cfg.data.test_batch_size,
-        cfg.data.msg_len, cfg.data.resol,
+    datactl = pkg.data_controller.DataController(
+        msg_len=cfg.data.msg_len,
+        resol=cfg.data.resol,
+        train_dataset_path=cfg.data.train_path,
+        test_dataset_path=cfg.data.test_path,
+        train_batch_size=cfg.data.train_batch_size,
+        test_batch_size=cfg.data.test_batch_size,
     )
 
     last_epoch = 0
@@ -55,16 +58,19 @@ def main(cfg):
         last_epoch, ckpt = experiment.load_checkpoint()
 
     distortioner = distortion.Identity()
-    model = pkg.model.HiddenModel(distortioner)
+    model = pkg.model.HiddenModel(distortioner=distortioner)
 
-    train_cycle = pkg.cycle.HiddenCycle(pkg.cycle.HiddenLossConfig(), model, device, cfg.gpu_ids)
+    train_cycle = pkg.cycle.HiddenCycle(
+        loss_cfg=pkg.cycle.HiddenLossConfig(),
+        model=model, device=device, gpu_ids=cfg.gpu_ids,
+    )
     train_cycle.setup_train(
-        pkg.cycle.HiddenTrainConfig(
-            cfg.train.optimizer_lr,
-            cfg.train.optimizer_wd,
-            cfg.train.discriminator_lr,
+        cfg=pkg.cycle.HiddenTrainConfig(
+            optimizer_lr=cfg.train.optimizer_lr,
+            optimizer_wd=cfg.train.optimizer_wd,
+            discriminator_lr=cfg.train.discriminator_lr,
         ),
-        ckpt,
+        ckpt=ckpt,
     )
 
     train_iter_cfg = pkg.iterator.TrainConfig(
@@ -73,7 +79,12 @@ def main(cfg):
         test_interval=cfg.training.test_interval,
     )
     print("Start Training...")
-    pkg.iterator.train_iter(train_iter_cfg, train_cycle, datacon, experiment)
+    pkg.iterator.train_iter(
+        cfg=train_iter_cfg, 
+        trainer=train_cycle, 
+        datactl=datactl, 
+        experiment=experiment,
+    )
     print("End Training")
 
     experiment.save_parameters(train_cycle.get_parameters(), cfg.training.epochs)
