@@ -26,7 +26,7 @@ class CometConfig:
     project: str
     workspace: str
     api_key: str
-    resume_exp_key: str =""
+    resume_experiment_key: str =""
 
 
 @dataclass
@@ -46,8 +46,8 @@ class Experiment:
         if cfg.resume_training:
             if not os.path.exists("train.log"):
                 raise ValueError(f"The specified experiment is seems to be a new experiment.")
-            if cfg.use_comet and not cfg.comet.resume_exp_key:
-                raise ValueError(f"cfg.comet.resume_exp_key is empty.")
+            if cfg.use_comet and not cfg.comet.resume_experiment_key:
+                raise ValueError(f"cfg.comet.resume_experiment_key is empty.")
 
         if cfg.use_comet:
             self._set_comet()
@@ -63,8 +63,8 @@ class Experiment:
             auto_metric_logging=False,
             parse_args=False
         )
-        if self.cfg.comet.resume_exp_key:
-            exp_args["previous_experiment"] = self.cfg.comet.resume_key
+        if self.cfg.comet.resume_experiment_key:
+            exp_args["previous_experiment"] = self.cfg.comet.resume_experiment_key
             self.comet = comet_ml.ExistingExperiment(**exp_args)
         else:
             self.comet = comet_ml.Experiment(**exp_args)

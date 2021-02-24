@@ -35,7 +35,7 @@ def main(cfg):
             project=os.environ["COMET_PROJECT"],
             workspace=os.environ["COMET_WORKSPACE"],
             api_key=os.environ["COMET_API_KEY"],
-            resume_exp_key=cfg.experiment.resume_exp_key,
+            resume_experiment_key=cfg.experiment.comet.resume_experiment_key,
         )
     )
     experiment = pkg.experiment.Experiment(expcfg)

@@ -24,7 +24,8 @@ experiment:
   tags: null
   resume_training: False
   use_comet: False
-  resume_exp_key: null
+  comet:
+    resume_experiment_key: null
 
 train:
   optimizer_lr: 1e-2 # 1e-3
