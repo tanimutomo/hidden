@@ -132,3 +132,4 @@ dmypy.json
 *.my.*
 .vscode
 log/
+pkg_test/
