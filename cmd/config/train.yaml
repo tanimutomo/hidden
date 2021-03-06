@@ -19,6 +19,8 @@ data:
 training:
   epochs: 200
   test_interval: 10
+  lr_scheduler_milestones: [50]
+  lr_scheduler_step_factor: 0.1
 
 experiment:
   tags: null

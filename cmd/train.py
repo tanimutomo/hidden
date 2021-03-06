@@ -70,13 +70,16 @@ def main(cfg):
             optimizer_wd=cfg.train.optimizer_wd,
             discriminator_lr=cfg.train.discriminator_lr,
         ),
-        ckpt=ckpt,
+        ckpt=ckpt["trainer"] if ckpt else None,
     )
 
     train_iter_cfg = pkg.iterator.TrainConfig(
         epochs=cfg.training.epochs,
         start_epoch=last_epoch+1,
         test_interval=cfg.training.test_interval,
+        lr_scheduler_milestones=cfg.training.lr_scheduler_milestones,
+        lr_scheduler_step_factor=cfg.training.lr_scheduler_step_factor,
+        lr_scheduler_state_dict=ckpt["scheduler"] if ckpt else None,
     )
     print("Start Training...")
     pkg.iterator.train_iter(

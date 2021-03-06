@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
 import sys
 import typing
@@ -19,8 +19,11 @@ import pkg.experiment
 @dataclass
 class TrainConfig:
     epochs: int =100
-    start_epoch: int =0
+    start_epoch: int =1
     test_interval: int =10
+    lr_scheduler_milestones: typing.List[int] =field(default_factory=list)
+    lr_scheduler_step_factor: float =1.0
+    lr_scheduler_state_dict: typing.Dict =field(default_factory=dict)
 
 
 def train_iter(
@@ -29,6 +32,15 @@ def train_iter(
     datactl: pkg.data_controller.DataController,
     experiment: pkg.experiment.Experiment,
 ):
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(
+        trainer.optimizer,
+        milestones=cfg.lr_scheduler_milestones,
+        gamma=cfg.lr_scheduler_step_factor,
+        last_epoch=cfg.start_epoch-2, # scheduler expect to last_epoch=-1 for a new training.
+    )
+    if cfg.lr_scheduler_state_dict:
+        scheduler.load_state_dict(cfg.lr_scheduler_state_dict)
+
     for epoch in range(cfg.start_epoch, cfg.epochs+1):
         meter = pkg.meter.MultiAverageMeter(trainer.metric_keys)
 
@@ -46,7 +58,11 @@ def train_iter(
         if epoch % cfg.test_interval == 0:
             test_iter(trainer, datactl, experiment, epoch, cfg.epochs)
 
-        experiment.save_checkpoint(trainer.get_checkpoint(), epoch)
+        ckpt = {
+            "scheduler": scheduler.state_dict(),
+            "trainer": trainer.get_checkpoint(),
+        }
+        experiment.save_checkpoint(ckpt, epoch)
 
 
 def test_iter(
