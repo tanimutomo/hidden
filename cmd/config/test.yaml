@@ -20,5 +20,5 @@ experiment:
   model_path: ???
   relative_model_path: ../../../${experiment.model_path}
 
-seed: null
+seed: 1234
 gpu_ids: []
