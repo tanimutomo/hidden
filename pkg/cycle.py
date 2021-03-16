@@ -81,6 +81,9 @@ class HiddenCycle(Cycle):
 
         if ckpt:
             self._load_checkpoint(ckpt)
+        else:
+            self.model.encoder.apply(_dcgan_weights_init)
+            self.discriminator.apply(_dcgan_weights_init)
 
         self._setup()
 
@@ -91,7 +94,7 @@ class HiddenCycle(Cycle):
 
     def _setup(self):
         self.model = _model_to_device(self.model, self.device, self.gpu_ids)
-        self.discriminator.to(self.device)
+        self.discriminator = _model_to_device(self.disctiminator, self.device, self.gpu_ids)
 
     def train(self, img, msg) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.train()
@@ -202,3 +205,12 @@ def _model_to_device(model: torch.nn.Module, device: torch.device, device_ids: t
     if len(device_ids) > 1:
         model = torch.nn.DataParallel(model, device_ids=device_ids)
     return model
+
+
+def _dcgan_weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        nn.init.normal_(m.weight.data, 1.0, 0.02)
+        nn.init.constant_(m.bias.data, 0)
