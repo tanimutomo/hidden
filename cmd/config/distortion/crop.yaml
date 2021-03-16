@@ -1,0 +1,4 @@
+# @package distortion
+
+name: crop
+probability: 0.035

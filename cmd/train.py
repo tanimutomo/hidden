@@ -2,7 +2,6 @@ import os
 import sys
 
 import comet_ml
-import distortion
 import dotenv
 import hydra
 import omegaconf
@@ -10,11 +9,12 @@ import torch
 
 sys.path.append(os.path.abspath("."))
 
-import pkg.experiment
-import pkg.data_controller
-import pkg.model
-import pkg.iterator
 import pkg.cycle
+import pkg.data_controller
+import pkg.distortion
+import pkg.experiment
+import pkg.iterator
+import pkg.model
 import pkg.seed
 
 
@@ -57,7 +57,13 @@ def main(cfg):
     if cfg.experiment.resume_training:
         last_epoch, ckpt = experiment.load_checkpoint()
 
-    distortioner = distortion.Identity()
+    distortioner = pkg.distortion.get(pkg.distoriton.Config(
+        name=cfg.distortion.name,
+        p=cfg.distortion.probability,
+        w=cfg.distoriton.kernel_size,
+        s=cfg.distortion.sigma,
+        qf=cfg.distortion.quality_factor,
+    ))
     model = pkg.model.HiddenModel(distortioner=distortioner)
 
     train_cycle = pkg.cycle.HiddenCycle(

@@ -1,0 +1,4 @@
+# @package distortion
+
+name: dropout
+probability: 0.3

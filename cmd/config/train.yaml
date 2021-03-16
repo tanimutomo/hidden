@@ -6,6 +6,7 @@ mode: train
 
 defaults:
   - config/experiment@experiment: default
+  - config/distortion@distortion: identity
 
 data:
   resol: 128

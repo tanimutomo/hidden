@@ -1,0 +1,4 @@
+# @package distortion
+
+name: cropout
+probability: 0.3
