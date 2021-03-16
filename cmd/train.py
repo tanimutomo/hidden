@@ -57,10 +57,10 @@ def main(cfg):
     if cfg.experiment.resume_training:
         last_epoch, ckpt = experiment.load_checkpoint()
 
-    distortioner = pkg.distortion.get(pkg.distoriton.Config(
+    distortioner = pkg.distortion.get(pkg.distortion.Config(
         name=cfg.distortion.name,
         p=cfg.distortion.probability,
-        w=cfg.distoriton.kernel_size,
+        w=cfg.distortion.kernel_size,
         s=cfg.distortion.sigma,
         qf=cfg.distortion.quality_factor,
     ))
