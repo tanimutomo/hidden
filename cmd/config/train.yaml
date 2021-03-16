@@ -35,5 +35,12 @@ train:
   optimizer_wd: 0.0
   discriminator_lr: 1e-2 # 1e-3
 
+distortion:
+  name: ???
+  probability: 0.0
+  kernel_size: 0
+  sigma: 0.0
+  quality_factor: 0
+
 seed: 1234
 gpu_ids: []
