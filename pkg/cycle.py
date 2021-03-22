@@ -94,7 +94,7 @@ class HiddenCycle(Cycle):
 
     def _setup(self):
         self.model = _model_to_device(self.model, self.device, self.gpu_ids)
-        self.discriminator = _model_to_device(self.disctiminator, self.device, self.gpu_ids)
+        self.discriminator = _model_to_device(self.discriminator, self.device, self.gpu_ids)
 
     def train(self, img, msg) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.train()
@@ -209,7 +209,7 @@ def _model_to_device(model: torch.nn.Module, device: torch.device, device_ids: t
 
 def _dcgan_weights_init(m):
     classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
+    if classname.find('Conv2d') != -1:
         torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
     elif classname.find('BatchNorm') != -1:
         torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
