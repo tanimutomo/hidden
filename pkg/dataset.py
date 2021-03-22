@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import os
 import io
 
@@ -29,4 +30,24 @@ class WatermarkDataset(torch.utils.data.Dataset):
         if self.img_transform:
             img = self.img_transform(img)
         return img, msg
+
+
+@dataclass
+class DataStat:
+    mean: float
+    std: float
+
+
+@dataclass
+class DatasetStats:
+    y: DataStat
+    u: DataStat
+    v: DataStat
+
+
+@dataclass
+class COCODatasetStats:
+    y: DataStat =DataStat(mean=0.45146745443344116, std=0.017709704115986824)
+    u: DataStat =DataStat(mean=-0.022217610850930214, std=0.005639264360070229)
+    v: DataStat =DataStat(mean=0.021544458344578743, std=0.0073324996046721935)
 

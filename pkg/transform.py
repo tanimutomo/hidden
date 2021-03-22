@@ -6,18 +6,24 @@ from PIL import Image
 import torch
 from torchvision import transforms
 
+import pkg.dataset
+
 
 @dataclass
 class ImageTransformer(object):
-    img_size: typing.Tuple[int, int] =(128, 128)
+    img_size: typing.Tuple[int, int]
+    dataset_stats: pkg.dataset.DatasetStats
 
     def __post_init__(self):
+        ds = self.dataset_stats
+
         self.train = transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.RandomResizedCrop(self.img_size, scale=(0.3, 1.0)),
             ToRGB(),
             transforms.ToTensor(),
             kornia.color.RgbToYuv(),
+            transforms.Normalize((ds.y.mean, ds.u.mean, ds.v.mean), (ds.y.std, ds.u.std, ds.v.std)),
         ])
 
         self.test = transforms.Compose([
@@ -26,9 +32,11 @@ class ImageTransformer(object):
             ToRGB(),
             transforms.ToTensor(),
             kornia.color.RgbToYuv(),
+            transforms.Normalize((ds.y.mean, ds.u.mean, ds.v.mean), (ds.y.std, ds.u.std, ds.v.std)),
         ])
 
         self.post_process = transforms.Compose([
+            Unnormalize((ds.y.mean, ds.u.mean, ds.v.mean), (ds.y.std, ds.u.std, ds.v.std)),
             kornia.color.YuvToRgb(),
         ])
 
@@ -39,3 +47,19 @@ class ToRGB:
 
     def __repr__(self):
         return self.__class__.__name__ + '()'
+
+
+class Unnormalize:
+    def __init__(self, mean: typing.List[float], std: typing.List[float]):
+        self.mean = mean
+        self.std = std
+    
+    def __call__(self, x: torch.FloatTensor):
+        mean = torch.as_tensor(self.mean, dtype=x.dtype, device=x.device)
+        std = torch.as_tensor(self.std, dtype=x.dtype, device=x.device)
+        if mean.ndim == 1:
+            mean = mean[:, None, None]
+        if std.ndim == 1:
+            std = std[:, None, None]
+        x.sub_(mean).div_(std)
+        return x

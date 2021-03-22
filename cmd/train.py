@@ -46,6 +46,7 @@ def main(cfg):
     datactl = pkg.data_controller.DataController(
         msg_len=cfg.data.msg_len,
         resol=cfg.data.resol,
+        dataset_stats=pkg.dataset.COCODatasetStats,
         train_dataset_path=cfg.data.train_path,
         test_dataset_path=cfg.data.test_path,
         train_batch_size=cfg.data.train_batch_size,
