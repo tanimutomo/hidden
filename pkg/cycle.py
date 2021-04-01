@@ -173,7 +173,7 @@ class HiddenCycle(Cycle):
         return {
             "model": _model_state_dict(self.model),
             "optimizer": self.optimizer.state_dict(),
-            "discriminator": self.discriminator.state_dict(),
+            "discriminator": _model_state_dict(self.discriminator),
             "discriminator_optimizer": self.discriminator_optimizer.state_dict(),
         }
 
@@ -186,7 +186,7 @@ class HiddenCycle(Cycle):
     def get_parameters(self) -> StateDict:
         return {
             "model": _model_state_dict(self.model),
-            "discriminator": self.discriminator.state_dict(),
+            "discriminator": _model_state_dict(self.discriminator),
         }
 
     def _load_parameters(self, params: StateDict):
@@ -214,3 +214,10 @@ def _dcgan_weights_init(m):
     elif classname.find('BatchNorm') != -1:
         torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
         torch.nn.init.constant_(m.bias.data, 0)
+
+
+def ptensor(name, tensor):
+    for c in range(tensor.shape[1]):
+        t = tensor[c]
+        print(f"{name}[{c}]: min={t.min().item():.2f} max={t.max().item():.2f} mean={t.mean().item():.2f}")
+
