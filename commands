@@ -1,4 +1,6 @@
-# identity_with_bn_traking_false
-poetry run python cmd/train.py config/experiment@experiment=default experiment.tags=distortion:identity experiment.use_comet=true experiment.prefix=identity_with_bn_tracking_false seed=1234 gpu_ids=[0] data.test_batch_size=48 training.epochs=100
+# debug (identity)
+poetry run python cmd/train.py config/experiment@experiment=debug
+# identity
+poetry run python cmd/train.py experiment.tags=distortion:identity experiment.use_comet=true experiment.prefix=identity
 # dropout_p=0.3
-poetry run python cmd/train.py config/experiment@experiment=default experiment.tags=distortion:dropout experiment.use_comet=true experiment.prefix=dropout_p:0.3 gpu_ids=[0]
+poetry run python cmd/train.py experiment.tags=distortion:dropout experiment.use_comet=true experiment.prefix=dropout_p:0.3
