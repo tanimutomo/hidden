@@ -43,4 +43,6 @@ distortion:
   quality_factor: 0
 
 seed: 1234
-gpu_ids: [0]
+gpu_ids: 
+  - 0
+  - 1
