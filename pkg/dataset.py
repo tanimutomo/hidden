@@ -47,7 +47,8 @@ class DatasetStats:
 
 @dataclass
 class COCODatasetStats:
-    y: DataStat =DataStat(mean=0.45146745443344116, std=0.017709704115986824)
-    u: DataStat =DataStat(mean=-0.022217610850930214, std=0.005639264360070229)
-    v: DataStat =DataStat(mean=0.021544458344578743, std=0.0073324996046721935)
+    # use the mean and the std of https://en.wikipedia.org/wiki/YUV
+    y: DataStat =DataStat(mean=0.5, std=0.500)
+    u: DataStat =DataStat(mean=0.0, std=0.436)
+    v: DataStat =DataStat(mean=0.0, std=0.615)
 
