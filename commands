@@ -4,3 +4,7 @@ poetry run python cmd/train.py config/experiment@experiment=debug
 poetry run python cmd/train.py experiment.tags=distortion:identity experiment.use_comet=true experiment.prefix=identity
 # dropout_p=0.3
 poetry run python cmd/train.py experiment.tags=distortion:dropout experiment.use_comet=true experiment.prefix=dropout_p:0.3
+# cropout_p=0.3
+poetry run python cmd/train.py experiment.tags=distortion:cropout experiment.use_comet=true experiment.prefix=cropout_p:0.3
+# crop_p=0.035
+poetry run python cmd/train.py experiment.tags=distortion:crop experiment.use_comet=true experiment.prefix=crop_p:0.035
