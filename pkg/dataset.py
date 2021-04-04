@@ -6,9 +6,7 @@ from PIL import Image
 import torch
 
 
-class WatermarkDataset(torch.utils.data.Dataset):
-    """Watermark Image Dataset"""
-
+class ByteMessageDataset(torch.utils.data.Dataset):
     def __init__(self, root_dir, msg_len, img_transform=None):
         """
         Args:
