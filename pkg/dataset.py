@@ -11,6 +11,7 @@ class ByteMessageDataset(torch.utils.data.Dataset):
         """
         Args:
             root_dir (string): Directory with all the images.
+            msg_len (int): Length for byte message.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
@@ -28,6 +29,33 @@ class ByteMessageDataset(torch.utils.data.Dataset):
         if self.img_transform:
             img = self.img_transform(img)
         return img, msg
+
+
+class WordMessageDataset(torch.utils.data.Dataset):
+    def __init__(self, root_dir, num_words, word_vecs, img_transform=None):
+        """
+        Args:
+            root_dir (string): Directory with all the images.
+            num_words (int): Number of words are embedded to image.
+            word_vecs (tensor): Word embedding vector.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
+        self.root_dir = root_dir
+        self.num_words = int(num_words)
+        self.word_vecs = word_vecs
+        self.img_transform = img_transform
+        self.files = [f for f in os.listdir(root_dir) if os.path.isfile(os.path.join(root_dir, f))]
+
+    def __len__(self):
+        return sum(os.path.isfile(os.path.join(self.root_dir, name)) for name in os.listdir(self.root_dir))
+
+    def __getitem__(self, idx: int):
+        img = Image.open(os.path.join(self.root_dir, self.files[idx]))
+        vecs = self.word_vecs.get_with_random(self.num_words)
+        if self.img_transform:
+            img = self.img_transform(img)
+        return img, vecs
 
 
 @dataclass
