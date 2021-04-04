@@ -130,11 +130,12 @@ class Experiment:
     def load_parameters(self, path: str) -> dict:
         return torch.load(path, map_location="cpu")
 
-    def save_image(self, imgs: Images, epoch: int, transformer=None):
-        os.makedirs("images", exist_ok=True)
+    def save_image(self, imgs: Images, mode: str, epoch: int, transformer=None):
+        dirname = f"images/{epoch}"
+        os.makedirs(dirname, exist_ok=True)
         for name, img in imgs.items():
-            filename = f"{name}_{epoch}.png"
-            path = os.path.join("images", filename)
+            filename = f"{mode}_{name}.png"
+            path = os.path.join(dirname, filename)
             if transformer:
                 img = transformer(img)
             torchvision.utils.save_image(img, path)
