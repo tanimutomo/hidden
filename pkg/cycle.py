@@ -64,8 +64,9 @@ class HiddenCycle(Cycle):
         "message_accuracy",
     ]
     img_keys = [
-        "train",
-        "test",
+        "input",
+        "encoded",
+        "noised",
     ]
 
     def __post_init__(self):
@@ -106,7 +107,7 @@ class HiddenCycle(Cycle):
         err_d_real = pkg.metric.adversarial_real_loss(self.discriminator, img, self.device)
         err_d_real.backward()
 
-        enc_img, pred_msg = self.model(img, msg)
+        enc_img, nos_img, pred_msg = self.model(img, msg)
 
         err_d_fake = pkg.metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
         err_d_fake.backward()
@@ -135,7 +136,9 @@ class HiddenCycle(Cycle):
             "message_accuracy": acc_msg.item()
         }
         imgs = {
-            "train": torch.stack([enc_img[0], img[0]]).cpu().detach(),
+            "input": img[0].cpu().detach(),
+            "encoded": enc_img[0].cpu().detach(),
+            "noised": nos_img[0].cpu().detach(),
         }
         return metrics, imgs
 
@@ -143,7 +146,7 @@ class HiddenCycle(Cycle):
         self.discriminator.eval()
 
         img, msg = img.to(self.device), msg.to(self.device)
-        enc_img, pred_msg = self.model(img, msg)
+        enc_img, nos_img, pred_msg = self.model(img, msg)
 
         err_d_real = pkg.metric.adversarial_real_loss(self.discriminator, img, self.device)
         err_d_fake = pkg.metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
@@ -165,7 +168,9 @@ class HiddenCycle(Cycle):
             "message_accuracy": acc_msg.item()
         }
         imgs = {
-            "test": torch.stack([enc_img[0], img[0]]).cpu().detach(),
+            "input": img[0].cpu().detach(),
+            "encoded": enc_img[0].cpu().detach(),
+            "noised": nos_img[0].cpu().detach(),
         }
         return metrics, imgs
 
@@ -214,10 +219,4 @@ def _dcgan_weights_init(m):
     elif classname.find('BatchNorm') != -1:
         torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
         torch.nn.init.constant_(m.bias.data, 0)
-
-
-def ptensor(name, tensor):
-    for c in range(tensor.shape[1]):
-        t = tensor[c]
-        print(f"{name}[{c}]: min={t.min().item():.2f} max={t.max().item():.2f} mean={t.mean().item():.2f}")
 

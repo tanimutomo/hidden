@@ -22,4 +22,4 @@ class HiddenModel(nn.Module):
         enc_img = self.encoder(img, msg)
         dis_img = self.distortioner(img, enc_img)
         pred_msg = self.decoder(dis_img)
-        return enc_img, pred_msg
+        return enc_img, dis_img, pred_msg
