@@ -84,4 +84,4 @@ def test_iter(
                 pbar.set_postfix_str(f'metric={metric_dict[tester.metric_keys[-1]]:.4f}')
 
     experiment.epoch_report(metric_dict, "test", epoch, epochs)
-    experiment.save_image(img_dict, epoch, datactl.img_post_transformer)
+    experiment.save_image(img_dict, "test", epoch, datactl.img_post_transformer)
