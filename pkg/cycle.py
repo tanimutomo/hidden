@@ -5,6 +5,7 @@ import torch
 
 import pkg.architecture
 import pkg.metric
+import pkg.dataset
 
 
 StateDict = typing.Dict[str, typing.Any]
@@ -51,6 +52,7 @@ class HiddenCycle(Cycle):
 
     loss_cfg: HiddenLossConfig
     model: torch.nn.Module
+    wvec: pkg.wordvec.GloVe
 
     device: torch.device
     gpu_ids: typing.List[int]
@@ -97,10 +99,10 @@ class HiddenCycle(Cycle):
         self.model = _model_to_device(self.model, self.device, self.gpu_ids)
         self.discriminator = _model_to_device(self.discriminator, self.device, self.gpu_ids)
 
-    def train(self, img, msg) -> typing.Tuple[typing.Dict, typing.Dict]:
+    def train(self, item: pkg.dataset.DataItem) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.train()
 
-        img, msg = img.to(self.device), msg.to(self.device)
+        img, msg = item.img().to(self.device), item.msg().to(self.device)
 
         self.discriminator.zero_grad()
 
@@ -125,7 +127,10 @@ class HiddenCycle(Cycle):
 
         self.optimizer.step()
 
-        acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
+        if item.is_msg_tensor():
+            acc_msg = pkg.metric.message_accuracy(pred_msg, item.msg)
+        else:
+            acc_msg = pkg.metric.word_vector_accuracy(self.wvec, pred_msg, item.msg)
 
         metrics = {
             "message_loss": err_msg.item(),

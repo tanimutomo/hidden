@@ -1,6 +1,8 @@
 import torch
 import torch.nn.functional as F
 
+import pkg.wordvec
+
 
 REAL_LABEL = 1
 FAKE_LABEL = 0
@@ -37,3 +39,7 @@ def message_accuracy(pred_msg, msg):
     err_count = torch.sum(torch.abs(bin_pred_msg - msg), dim=1)
     return torch.mean(1 - (err_count / msg.shape[1]))
 
+
+def word_vector_accuracy(wvec: pkg.wordvec.GloVe, pred: torch.FloatTensor, ipt: pkg.wordvec.WordVector):
+    appro_pred = wvec.most_similar(pred)
+    return torch.sum(appro_pred.idx == ipt.idx) / ipt.idx.shape[0]

@@ -46,8 +46,8 @@ def train_iter(
 
         trainer.model.train()
         with tqdm(datactl.train_loader, ncols=80, leave=False) as pbar:
-            for step, (img, msg) in enumerate(pbar):
-                metric_dict, img_dict = trainer.train(img, msg)
+            for step, item in enumerate(pbar):
+                metric_dict, img_dict = trainer.train(item)
                 meter.updates(metric_dict)
 
                 pbar.set_postfix_str(f'metric={metric_dict[trainer.metric_keys[-1]]:.4f}')
@@ -77,8 +77,8 @@ def test_iter(
 
     with torch.no_grad():
         with tqdm(datactl.test_loader, ncols=80, leave=False) as pbar:
-            for step, (img, msg) in enumerate(pbar):
-                metric_dict, img_dict = tester.test(img, msg)
+            for step, item in enumerate(pbar):
+                metric_dict, img_dict = tester.test(item)
                 meter.updates(metric_dict)
 
                 pbar.set_postfix_str(f'metric={metric_dict[tester.metric_keys[-1]]:.4f}')
