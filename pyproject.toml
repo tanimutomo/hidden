@@ -10,12 +10,12 @@ comet-ml = "3.3.4"
 moment = "0.12.1"
 tqdm = "4.57.0"
 kornia = "0.4.1"
-distortion = {git = "https://github.com/tanimutomo/watermark-distortions", rev = "main"}
 hydra-core = "1.0.6"
 python-dotenv = "0.15.0"
 torch = "1.6.0"
 torchvision = "0.7.0"
 torchtext = "0.7.0"
+distortion = "0.1.2"
 
 [tool.poetry.dev-dependencies]
 

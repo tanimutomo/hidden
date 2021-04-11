@@ -101,22 +101,15 @@ calendars = ["convertdate", "hijri-converter", "convertdate"]
 
 [[package]]
 name = "distortion"
-version = "0.0.2"
-description = ""
+version = "0.1.2"
+description = "Watermark distortions"
 category = "main"
 optional = false
-python-versions = ">=3.6"
-develop = false
+python-versions = ">=3.8,<4.0"
 
 [package.dependencies]
-kornia = ">=0.4.0"
-torch = ">=1.6.0"
-
-[package.source]
-type = "git"
-url = "https://github.com/tanimutomo/watermark-distortions"
-reference = "main"
-resolved_reference = "2a25fe8a96afdbc2197df4f1602f783eba0fe861"
+kornia = ">=0.4.0,<0.5.0"
+torch = ">=1.6.0,<2.0.0"
 
 [[package]]
 name = "dulwich"
@@ -505,7 +498,7 @@ python-versions = ">=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "6fe5099b12192fd40faaee651a8392cd3b52bc0bcc1d39b98221471dc3ce99ab"
+content-hash = "d2bf0ccbe0cde3e3c8eb24fc06b919c2282dccfbc24dbbb4a4945fb282ec3147"
 
 [metadata.files]
 antlr4-python3-runtime = [
@@ -538,7 +531,10 @@ dateparser = [
     {file = "dateparser-1.0.0-py2.py3-none-any.whl", hash = "sha256:17202df32c7a36e773136ff353aa3767e987f8b3e27374c39fd21a30a803d6f8"},
     {file = "dateparser-1.0.0.tar.gz", hash = "sha256:159cc4e01a593706a15cd4e269a0b3345edf3aef8bf9278a57dac8adf5bf1e4a"},
 ]
-distortion = []
+distortion = [
+    {file = "distortion-0.1.2-py3-none-any.whl", hash = "sha256:3f3b730e63c4d178ab854c52afca27bf2a6b21217d909c9660162910bbc8ddf9"},
+    {file = "distortion-0.1.2.tar.gz", hash = "sha256:b0bd080907fd26eeb90ab15880323fb525060ee1449c64cf921328e227958dc8"},
+]
 dulwich = [
     {file = "dulwich-0.20.19-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:acd1f553cd9ed1598991b275ae13fd0eb2f78e7e9b27b576d4a01019e248cd26"},
     {file = "dulwich-0.20.19-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:b7f339a897c55f84692144fadbf237de1df5385bc29ee5d118fd319601a470ef"},
