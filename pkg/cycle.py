@@ -3,15 +3,15 @@ from dataclasses import dataclass
 
 import torch
 
-import pkg.architecture
 import pkg.metric
+import pkg.model
 
 
 StateDict = typing.Dict[str, typing.Any]
 
 class Cycle:
 
-    model: torch.nn.Module
+    model: pkg.model.HiddenModel
     metric_keys = []
     img_keys = []
 
@@ -50,7 +50,7 @@ class HiddenTestConfig:
 class HiddenCycle(Cycle):
 
     loss_cfg: HiddenLossConfig
-    model: torch.nn.Module
+    model: pkg.model.HiddenModel
 
     device: torch.device
     gpu_ids: typing.List[int]
@@ -70,7 +70,7 @@ class HiddenCycle(Cycle):
     ]
 
     def __post_init__(self):
-        self.discriminator = pkg.architecture.Discriminator()
+        self.discriminator = pkg.model.Discriminator()
 
     def setup_train(self, cfg: HiddenTrainConfig, ckpt: typing.Dict[str, object]):
         self.optimizer = torch.optim.Adam(
@@ -94,8 +94,10 @@ class HiddenCycle(Cycle):
         self._setup()
 
     def _setup(self):
-        self.model = _model_to_device(self.model, self.device, self.gpu_ids)
-        self.discriminator = _model_to_device(self.discriminator, self.device, self.gpu_ids)
+        self.model.to(self.device)
+        self.model.parallel(self.gpu_ids)
+        self.discriminator.to(self.device)
+        self.discriminator.parallel(self.gpu_ids)
 
     def train(self, img, msg) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.train()
@@ -176,9 +178,9 @@ class HiddenCycle(Cycle):
 
     def get_checkpoint(self) -> StateDict:
         return {
-            "model": _model_state_dict(self.model),
+            "model": self.model.state_dict(),
             "optimizer": self.optimizer.state_dict(),
-            "discriminator": _model_state_dict(self.discriminator),
+            "discriminator": self.discriminator.state_dict(),
             "discriminator_optimizer": self.discriminator_optimizer.state_dict(),
         }
 
@@ -190,8 +192,8 @@ class HiddenCycle(Cycle):
 
     def get_parameters(self) -> StateDict:
         return {
-            "model": _model_state_dict(self.model),
-            "discriminator": _model_state_dict(self.discriminator),
+            "model": self.model.state_dict(),
+            "discriminator": self.discriminator.state_dict(),
         }
 
     def _load_parameters(self, params: StateDict):
@@ -199,13 +201,13 @@ class HiddenCycle(Cycle):
         self.discriminator.load_state_dict(params["discriminator"])
 
 
-def _model_state_dict(model: torch.nn.Module) -> dict:
+def _model_state_dict(model: pkg.model.HiddenModel) -> dict:
     if isinstance(model, torch.nn.DataParallel):
         return model.module.state_dict()
     return model.state_dict()
 
 
-def _model_to_device(model: torch.nn.Module, device: torch.device, device_ids: typing.List[int]) -> torch.nn.Module:
+def _model_to_device(model: pkg.model.HiddenModel, device: torch.device, device_ids: typing.List[int]) -> torch.nn.Module:
     model.to(device)
     if len(device_ids) > 1:
         model = torch.nn.DataParallel(model, device_ids=device_ids)
