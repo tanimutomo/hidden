@@ -1,6 +1,6 @@
 hydra:
   run:
-    dir: log/${mode}/${experiment.name}
+    dir: .log/${mode}/${experiment.name}
 
 mode: train
 
