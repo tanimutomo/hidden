@@ -6,6 +6,7 @@ mode: test
 
 defaults:
   - config/experiment@experiment: default
+  - config/distortion@distortion: identity
 
 data:
   resol: 128
@@ -22,5 +23,13 @@ experiment:
   model_path: ???
   relative_model_path: ../../../${experiment.model_path}
 
+distortion:
+  name: ???
+  probability: 0.0
+  kernel_size: 0
+  sigma: 0.0
+  quality_factor: 0
+
 seed: 1234
-gpu_ids: []
+gpu_ids: 
+  - 0

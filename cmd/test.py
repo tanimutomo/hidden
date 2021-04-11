@@ -51,7 +51,13 @@ def main(cfg):
 
     params = experiment.load_parameters(cfg.experiment.relative_model_path)
 
-    distortioner = distortion.Identity()
+    distortioner = pkg.distortion.get(pkg.distortion.Config(
+        name=cfg.distortion.name,
+        p=cfg.distortion.probability,
+        w=cfg.distortion.kernel_size,
+        s=cfg.distortion.sigma,
+        qf=cfg.distortion.quality_factor,
+    ))
     model = pkg.model.HiddenModel(distortioner=distortioner)
 
     test_cycle = pkg.cycle.HiddenCycle(
