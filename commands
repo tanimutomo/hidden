@@ -10,3 +10,7 @@ poetry run python cmd/train.py experiment.tags=distortion:cropout experiment.use
 poetry run python cmd/train.py experiment.tags=distortion:crop experiment.use_comet=true experiment.prefix=crop_p:0.035 config/distortion@distortion=crop distortion.probability=0.035
 # gaussian_sigma=2
 poetry run python cmd/train.py experiment.tags=distortion:gaussian experiment.use_comet=true experiment.prefix=gaussian_sigma:2.0 config/distortion@distortion=gaussian_blur distortion.sigma=2.0
+# jpeg_drop
+poetry run python cmd/train.py experiment.tags=distortion:jpeg_drop experiment.use_comet=true experiment.prefix=jpeg_drop config/distortion@distortion=jpeg_drop
+# jpeg_mask
+poetry run python cmd/train.py experiment.tags=distortion:jpeg_mask experiment.use_comet=true experiment.prefix=jpeg_mask config/distortion@distortion=jpeg_mask
