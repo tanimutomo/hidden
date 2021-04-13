@@ -101,7 +101,7 @@ calendars = ["convertdate", "hijri-converter", "convertdate"]
 
 [[package]]
 name = "distortion"
-version = "0.1.6"
+version = "0.1.7"
 description = "Watermark distortions"
 category = "main"
 optional = false
@@ -532,8 +532,8 @@ dateparser = [
     {file = "dateparser-1.0.0.tar.gz", hash = "sha256:159cc4e01a593706a15cd4e269a0b3345edf3aef8bf9278a57dac8adf5bf1e4a"},
 ]
 distortion = [
-    {file = "distortion-0.1.6-py3-none-any.whl", hash = "sha256:fe97151cfd2b54e78ec18c25296b18eaee18c715a0d9471ef092dfc43b9b3ca6"},
-    {file = "distortion-0.1.6.tar.gz", hash = "sha256:2e035ced7bf77a08513d7871bb284576d2e98607e11fc22c3930a185f520a7bd"},
+    {file = "distortion-0.1.7-py3-none-any.whl", hash = "sha256:7901deb1c6561b505f4940f9a4425cb12b52e68bcda6c716ef2763086fc0b83a"},
+    {file = "distortion-0.1.7.tar.gz", hash = "sha256:b34088bc5d727a77946379d62f31f166bb581f5e91a5c0ab8874426fbb7c6bc4"},
 ]
 dulwich = [
     {file = "dulwich-0.20.19-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:acd1f553cd9ed1598991b275ae13fd0eb2f78e7e9b27b576d4a01019e248cd26"},
