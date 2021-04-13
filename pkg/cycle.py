@@ -77,13 +77,13 @@ class HiddenCycle(Cycle):
             self.model.parameters(), lr=cfg.optimizer_lr,
             weight_decay=cfg.optimizer_wd,
         )
-        _optimizer_to_device(self.optimizer, self.device)
         self.discriminator_optimizer = torch.optim.Adam(
             self.discriminator.parameters(), lr=cfg.discriminator_lr)
-        _optimizer_to_device(self.discriminator_optimizer, self.device)
 
         if ckpt:
             self._load_checkpoint(ckpt)
+            _optimizer_to_device(self.optimizer, self.device)
+            _optimizer_to_device(self.discriminator_optimizer, self.device)
         else:
             self.model.encoder.apply(_dcgan_weights_init)
             self.discriminator.apply(_dcgan_weights_init)
