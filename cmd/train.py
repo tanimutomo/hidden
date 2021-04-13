@@ -65,7 +65,7 @@ def main(cfg):
         s=cfg.distortion.sigma,
         qf=cfg.distortion.quality_factor,
     ))
-    model = pkg.model.HiddenModel(distortioner=distortioner, distortion_parallel=cfg.distortion_parallel)
+    model = pkg.model.HiddenModel(distortioner=distortioner, distortion_parallel=cfg.distortion.parallel)
 
     train_cycle = pkg.cycle.HiddenCycle(
         loss_cfg=pkg.cycle.HiddenLossConfig(),
