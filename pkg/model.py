@@ -34,12 +34,14 @@ class _Base(nn.Module):
 
 
 class HiddenModel(_Base):
-    def __init__(self, distortioner: distortion.Distortioner):
+    def __init__(self, distortioner: distortion.Distortioner, distortion_parallel: bool):
         super().__init__()
         self.encoder = pkg.architecture.Encoder()
         self.distortioner = distortioner
         self.decoder = pkg.architecture.Decoder()
         self.module_names = ["encoder", "decoder"]
+        if distortion_parallel:
+            self.module_names.append["distortioner"]
 
     def forward(self, img: torch.FloatTensor, msg: torch.FloatTensor) -> typing.Tuple[torch.FloatTensor, torch.FloatTensor]:
         enc_img = self.encoder(img, msg)
