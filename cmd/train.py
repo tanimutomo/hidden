@@ -72,7 +72,8 @@ def main(cfg):
             s=cfg.test_distortion.sigma,
             qf=cfg.test_distortion.quality_factor,
         )),
-        distortion_parallel=cfg.distortion.parallel,
+        train_distortion_parallelable=cfg.train_distortion.parallelable,
+        test_distortion_parallelable=cfg.test_distortion.parallelable,
     )
 
 
