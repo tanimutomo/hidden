@@ -1,5 +1,3 @@
-# debug (identity)
-poetry run python cmd/train.py config/experiment@experiment=debug config/distortion@train_distortion=crop config/distortion@test_distortion=dropout training.epochs=1 training.test_interval=1
 #train identity
 poetry run python cmd/train.py experiment.tags=distortion:identity experiment.use_comet=true experiment.prefix=identity
 # dropout_p=0.3
