@@ -2,3 +2,4 @@
 
 name: cropout
 probability: 0.3
+parallelable: false

@@ -43,7 +43,7 @@ train_distortion:
   kernel_size: 0
   sigma: 0.0
   quality_factor: 0
-  paralell: False
+  paralellable: False
 
 test_distortion:
   name: ???
@@ -51,7 +51,7 @@ test_distortion:
   kernel_size: 0
   sigma: 0.0
   quality_factor: 0
-  paralell: False
+  paralellable: False
 
 seed: 1234
 gpu_ids: 

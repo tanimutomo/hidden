@@ -2,3 +2,4 @@
 
 name: crop
 probability: 0.035
+parallelable: false

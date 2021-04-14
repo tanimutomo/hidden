@@ -1,4 +1,4 @@
 # @package distortion
 
 name: jpeg_mask
-parallel: True
+parallelable: true

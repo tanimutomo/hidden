@@ -1,4 +1,4 @@
 # @package distortion
 
 name: jpeg_drop
-parallel: True
+parallelable: true

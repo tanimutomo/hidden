@@ -1,3 +1,4 @@
 # @package distortion
 
 name: identity
+parallelable: true
