@@ -17,7 +17,7 @@ class _Base(nn.Module):
         self._is_parallel: bool = False
         self.module_names: typing.List[str] = []
 
-    def _parallel(self, device_ids: typing.List[int]):
+    def parallel(self, device_ids: typing.List[int]):
         if len(device_ids) <= 1: return
         for m in self.module_names:
             setattr(self, m, torch.nn.DataParallel(getattr(self, m), device_ids=device_ids))
@@ -49,9 +49,6 @@ class HiddenModel(_Base):
         pred_msg = self.decoder(dis_img)
         return enc_img, dis_img, pred_msg
 
-    def parallel(self, device_ids: typing.List[int]):
-        self._parallel(device_ids)
-
 
 class Discriminator(_Base):
     def __init__(self):
@@ -61,6 +58,3 @@ class Discriminator(_Base):
 
     def forward(self, x: torch.FloatTensor) -> torch.FloatTensor:
         return self.discriminator(x)
-
-    def parallel(self, device_ids: typing.List[int]):
-        self._parallel(device_ids)
