@@ -6,7 +6,8 @@ mode: train
 
 defaults:
   - config/experiment@experiment: default
-  - config/distortion@distortion: identity
+  - config/distortion@train_distortion: identity
+  - config/distortion@test_distortion: identity
 
 data:
   resol: 128
@@ -36,7 +37,15 @@ train:
   optimizer_wd: 0.0
   discriminator_lr: 1e-3
 
-distortion:
+train_distortion:
+  name: ???
+  probability: 0.0
+  kernel_size: 0
+  sigma: 0.0
+  quality_factor: 0
+  paralell: False
+
+test_distortion:
   name: ???
   probability: 0.0
   kernel_size: 0
