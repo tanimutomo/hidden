@@ -1,6 +1,6 @@
 .SHELL=/bin/bash
 
-.PHONY: debug
+.PHONY: debug debug-mac train-identity train-dropout train-cropout train-crop train-gausian train-jpegdrop train-jpegmask
 
 debug:
 	poetry run python cmd/train.py config/experiment@experiment=debug config/distortion@train_distortion=crop config/distortion@test_distortion=dropout training.epochs=1 training.test_interval=1
