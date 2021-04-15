@@ -26,4 +26,5 @@ def get(cfg: Config) -> distortion.Distortioner:
     elif cfg.name == "jpeg_compression": return distortion.JPEGCompression(cfg.qf)
     elif cfg.name == "jpeg_mask": return distortion.JPEGMask()
     elif cfg.name == "jpeg_drop": return distortion.JPEGDrop()
+    elif cfg.name == "jpeg": return distortion.JPEGCompression(cfg.qf)
     else: raise NotImplementedError

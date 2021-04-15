@@ -1,0 +1,5 @@
+# @package distortion
+
+name: jpeg
+quality_factor: 50
+parallelable: true
