@@ -1,14 +1,57 @@
 #train identity
-poetry run python cmd/train.py experiment.tags=distortion:identity experiment.use_comet=true experiment.prefix=identity
+poetry run python cmd/train.py \
+  experiment.tags=distortion:identity \
+  experiment.use_comet=true \
+  experiment.prefix=identity
+
 # dropout_p=0.3
-poetry run python cmd/train.py experiment.tags=distortion:dropout experiment.use_comet=true experiment.prefix=dropout_p:0.3 config/distortion@train_distortion=dropout config/distortion@test_distortion=dropout distortion.probability=0.3
+poetry run python cmd/train.py \
+  experiment.tags=distortion:dropout \
+  experiment.use_comet=true \
+  experiment.prefix=dropout_p:0.3 \
+  config/distortion@train_distortion=dropout \
+  config/distortion@test_distortion=dropout \
+  distortion.probability=0.3
+
 # cropout_p=0.3
-poetry run python cmd/train.py experiment.tags=distortion:cropout experiment.use_comet=true experiment.prefix=cropout_p:0.3 config/distortion@train_distortion=cropout config/distortion@test_distortion=cropout distortion.probability=0.3
+poetry run python cmd/train.py \
+  experiment.tags=distortion:cropout \
+  experiment.use_comet=true \
+  experiment.prefix=cropout_p:0.3 \
+  config/distortion@train_distortion=cropout aa\
+  config/distortion@test_distortion=cropout \
+  distortion.probability=0.3
+
 # crop_p=0.035
-poetry run python cmd/train.py experiment.tags=distortion:crop experiment.use_comet=true experiment.prefix=crop_p:0.035 config/distortion@train_distortion=crop config/distortion@test_distortion=crop distortion.probability=0.035
+poetry run python cmd/train.py \
+  experiment.tags=distortion:crop \
+  experiment.use_comet=true \
+  experiment.prefix=crop_p:0.035 \
+  config/distortion@train_distortion=crop \
+  config/distortion@test_distortion=crop \
+  distortion.probability=0.035
+
 # gaussian_sigma=2
-poetry run python cmd/train.py experiment.tags=distortion:gaussian experiment.use_comet=true experiment.prefix=gaussian_sigma:2.0 config/distortion@train_distortion=gaussian_blur config/distortion@test_distortion=gaussian_blur distortion.sigma=2.0
+poetry run python cmd/train.py \
+  experiment.tags=distortion:gaussian \
+  experiment.use_comet=true \
+  experiment.prefix=gaussian_sigma:2.0 \
+  config/distortion@train_distortion=gaussian_blur \
+  config/distortion@test_distortion=gaussian_blur \
+  distortion.sigma=2.0
+
 # jpeg_drop
-poetry run python cmd/train.py experiment.tags=distortion:jpeg_drop experiment.use_comet=true experiment.prefix=jpeg_drop config/distortion@train_distortion=jpeg_drop config/distortion@test_distortion=jpeg
+poetry run python cmd/train.py \
+  experiment.tags=distortion:jpeg_drop \
+  experiment.use_comet=true \
+  experiment.prefix=jpeg_drop \
+  config/distortion@train_distortion=jpeg_drop \
+  config/distortion@test_distortion=jpeg
+
 # jpeg_mask
-poetry run python cmd/train.py experiment.tags=distortion:jpeg_mask experiment.use_comet=true experiment.prefix=jpeg_mask config/distortion@train_distortion=jpeg_mask config/distortion@test_distortion=jpeg
+poetry run python cmd/train.py \
+  experiment.tags=distortion:jpeg_mask \
+  experiment.use_comet=true \
+  experiment.prefix=jpeg_mask \
+  config/distortion@train_distortion=jpeg_mask \
+  config/distortion@test_distortion=jpeg
