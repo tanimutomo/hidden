@@ -2,8 +2,10 @@
 
 .PHONY: debug debug-mac train-identity train-dropout train-cropout train-crop train-gausian train-jpegdrop train-jpegmask
 
+debug: train_dis = jpeg_drop
+debug: test_dis = jpeg
 debug:
-	poetry run python cmd/train.py config/experiment@experiment=debug config/distortion@train_distortion=crop config/distortion@test_distortion=dropout training.epochs=1 training.test_interval=1
+	poetry run python cmd/train.py config/experiment@experiment=debug config/distortion@train_distortion=$(train_dis) config/distortion@test_distortion=$(test_dis) training.epochs=1 training.test_interval=1
 
 debug-mac:
 	poetry run python cmd/train.py config/experiment@experiment=debug config/distortion@train_distortion=crop config/distortion@test_distortion=dropout training.epochs=1 training.test_interval=1 data.root=/Users/tanimu/data gpu_ids=[]
@@ -65,3 +67,4 @@ train-jpegmask:
 		experiment.prefix=jpeg_mask \
 		config/distortion@train_distortion=jpeg_mask \
 		config/distortion@test_distortion=jpeg
+
