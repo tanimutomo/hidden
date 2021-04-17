@@ -15,15 +15,13 @@ class ImageTransformer(object):
     dataset_stats: pkg.dataset.DatasetStats
 
     def __post_init__(self):
-        ds = self.dataset_stats
-
         self.train = transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.RandomResizedCrop(self.img_size, scale=(0.3, 1.0)),
             ToRGB(),
             transforms.ToTensor(),
             kornia.color.RgbToYuv(),
-            transforms.Normalize((ds.y.mean, ds.u.mean, ds.v.mean), (ds.y.std, ds.u.std, ds.v.std)),
+            transforms.Normalize(self.dataset_stats.means(), self.dataset_stats.stds()),
         ])
 
         self.test = transforms.Compose([
@@ -32,11 +30,11 @@ class ImageTransformer(object):
             ToRGB(),
             transforms.ToTensor(),
             kornia.color.RgbToYuv(),
-            transforms.Normalize((ds.y.mean, ds.u.mean, ds.v.mean), (ds.y.std, ds.u.std, ds.v.std)),
+            transforms.Normalize(self.dataset_stats.means(), self.dataset_stats.stds()),
         ])
 
         self.post_process = transforms.Compose([
-            Unnormalize((ds.y.mean, ds.u.mean, ds.v.mean), (ds.y.std, ds.u.std, ds.v.std)),
+            Unnormalize(self.dataset_stats.means(), self.dataset_stats.stds()),
             kornia.color.YuvToRgb(),
         ])
 
