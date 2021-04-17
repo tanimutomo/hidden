@@ -16,6 +16,7 @@ torch = "1.6.0"
 torchvision = "0.7.0"
 torchtext = "0.7.0"
 distortion = "^0.1.6"
+ptdt = "^0.1.2"
 
 [tool.poetry.dev-dependencies]
 
