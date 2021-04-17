@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import typing
 
 import distortion
@@ -16,8 +16,8 @@ class Config:
     # JPEGCompression
     qf: int = 0
     # JPEGDrop, JPEGMask
-    mean: typing.List[float] = [0, 0, 0]
-    std: typing.List[float] = [1, 1, 1]
+    mean: typing.List[float] = field(default=[0, 0, 0], default_factory=list)
+    std: typing.List[float] = field(default=[1, 1, 1], default_factory=list)
 
 
 def get(cfg: Config) -> distortion.Distortioner:
