@@ -42,7 +42,7 @@ def main(cfg):
     )
     experiment.log_experiment_params(omegaconf.OmegaConf.to_container(cfg))
 
-    datastats = pkg.dataset.COCODatasetStats
+    datastats = pkg.dataset.COCODatasetStats()
     datactl = pkg.data_controller.DataController(
         msg_len=cfg.data.msg_len,
         resol=cfg.data.resol,
