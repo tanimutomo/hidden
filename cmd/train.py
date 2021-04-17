@@ -42,10 +42,11 @@ def main(cfg):
     )
     experiment.log_experiment_params(omegaconf.OmegaConf.to_container(cfg))
 
+    datastats = pkg.dataset.COCODatasetStats
     datactl = pkg.data_controller.DataController(
         msg_len=cfg.data.msg_len,
         resol=cfg.data.resol,
-        dataset_stats=pkg.dataset.COCODatasetStats,
+        dataset_stats=datastats,
         train_dataset_path=cfg.data.train_path,
         test_dataset_path=cfg.data.test_path,
         train_batch_size=cfg.data.train_batch_size,
@@ -64,6 +65,8 @@ def main(cfg):
             w=cfg.train_distortion.kernel_size,
             s=cfg.train_distortion.sigma,
             qf=cfg.train_distortion.quality_factor,
+            mean=datastats.means(),
+            std=datastats.stds(),
         )),
         test_distortioner=pkg.distortion.get(pkg.distortion.Config(
             name=cfg.test_distortion.name,
@@ -71,6 +74,8 @@ def main(cfg):
             w=cfg.test_distortion.kernel_size,
             s=cfg.test_distortion.sigma,
             qf=cfg.test_distortion.quality_factor,
+            mean=datastats.means(),
+            std=datastats.stds(),
         )),
         train_distortion_parallelable=cfg.train_distortion.parallelable,
         test_distortion_parallelable=cfg.test_distortion.parallelable,

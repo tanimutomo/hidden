@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import typing
 
 import distortion
 
@@ -14,6 +15,9 @@ class Config:
     s: float = 0.0
     # JPEGCompression
     qf: int = 0
+    # JPEGDrop, JPEGMask
+    mean: typing.List[float] = [0, 0, 0]
+    std: typing.List[float] = [1, 1, 1]
 
 
 def get(cfg: Config) -> distortion.Distortioner:
@@ -24,7 +28,7 @@ def get(cfg: Config) -> distortion.Distortioner:
     elif cfg.name == "resize": return distortion.Resize(cfg.p)
     elif cfg.name == "gaussian_blur": return distortion.GaussianBlur(cfg.w, cfg.s)
     elif cfg.name == "jpeg_compression": return distortion.JPEGCompression(cfg.qf)
-    elif cfg.name == "jpeg_mask": return distortion.JPEGMask()
-    elif cfg.name == "jpeg_drop": return distortion.JPEGDrop()
+    elif cfg.name == "jpeg_mask": return distortion.JPEGMask(cfg.mean, cfg.std)
+    elif cfg.name == "jpeg_drop": return distortion.JPEGDrop(cfg.mean, cfg.std)
     elif cfg.name == "jpeg": return distortion.JPEGCompression(cfg.qf)
     else: raise NotImplementedError
