@@ -58,6 +58,7 @@ def main(cfg):
     if cfg.experiment.resume_training:
         last_epoch, ckpt = experiment.load_checkpoint()
 
+    pkg.distortion.init(datastats.means(), datastats.stds())
     model = pkg.model.HiddenModel(
         train_distortioner=pkg.distortion.get(pkg.distortion.Config(
             name=cfg.train_distortion.name,
@@ -65,8 +66,6 @@ def main(cfg):
             w=cfg.train_distortion.kernel_size,
             s=cfg.train_distortion.sigma,
             qf=cfg.train_distortion.quality_factor,
-            mean=datastats.means(),
-            std=datastats.stds(),
         )),
         test_distortioner=pkg.distortion.get(pkg.distortion.Config(
             name=cfg.test_distortion.name,
@@ -74,13 +73,10 @@ def main(cfg):
             w=cfg.test_distortion.kernel_size,
             s=cfg.test_distortion.sigma,
             qf=cfg.test_distortion.quality_factor,
-            mean=datastats.means(),
-            std=datastats.stds(),
         )),
         train_distortion_parallelable=cfg.train_distortion.parallelable,
         test_distortion_parallelable=cfg.test_distortion.parallelable,
     )
-
 
     train_cycle = pkg.cycle.HiddenCycle(
         loss_cfg=pkg.cycle.HiddenLossConfig(),

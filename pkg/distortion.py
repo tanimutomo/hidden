@@ -15,9 +15,10 @@ class Config:
     s: float = 0.0
     # JPEGCompression
     qf: int = 0
-    # JPEGDrop, JPEGMask
-    mean: typing.List[float] = field(default_factory=list)
-    std: typing.List[float] = field(default_factory=list)
+
+
+def init(mean: typing.List[float], std: typing.List[float]):
+    distortion.init(mean, std)
 
 
 def get(cfg: Config) -> distortion.Distortioner:
