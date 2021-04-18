@@ -25,7 +25,7 @@ class _Base(nn.Module):
 
     def state_dict(self):
         if not self._is_parallel:
-            return self.state_dict()
+            return super().state_dict()
         sd = dict()
         for m in self.module_names:
             for k, v in getattr(self, m).module.state_dict().items():
