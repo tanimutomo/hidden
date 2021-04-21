@@ -8,13 +8,17 @@ import distortion
 class Config:
     name: str
     # Dropout, Cropout, Crop, Resize
-    p: float = 0.0
+    p: float
+    # GaussianBlur, Combined
+    w: int
     # GaussianBlur
-    w: int = 0
-    # GaussianBlur
-    s: float = 0.0
+    s: float
     # JPEGCompression
-    qf: int = 0
+    qf: int
+    # Combined
+    ps: typing.List[float]
+    ss: typing.List[float]
+    
 
 
 def init(mean: typing.List[float], std: typing.List[float]):
@@ -22,7 +26,7 @@ def init(mean: typing.List[float], std: typing.List[float]):
 
 
 def get(cfg: Config) -> distortion.Distortioner:
-    if cfg.name == "identity": return distortion.Identity()
+    if   cfg.name == "identity": return distortion.Identity()
     elif cfg.name == "dropout": return distortion.Dropout(cfg.p)
     elif cfg.name == "cropout": return distortion.Cropout(cfg.p)
     elif cfg.name == "crop": return distortion.Crop(cfg.p)
@@ -32,4 +36,5 @@ def get(cfg: Config) -> distortion.Distortioner:
     elif cfg.name == "jpeg_mask": return distortion.JPEGMask()
     elif cfg.name == "jpeg_drop": return distortion.JPEGDrop()
     elif cfg.name == "jpeg": return distortion.JPEGCompression(cfg.qf)
+    elif cfg.name == "combined": return distortion.Combined(cfg.ps, cfg.w, cfg.ss)
     else: raise NotImplementedError

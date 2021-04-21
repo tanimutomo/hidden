@@ -66,6 +66,8 @@ def main(cfg):
             w=cfg.train_distortion.kernel_size,
             s=cfg.train_distortion.sigma,
             qf=cfg.train_distortion.quality_factor,
+            ps=cfg.train_distortion.probabilities,
+            ss=cfg.train_distortion.sigmas,
         )),
         test_distortioner=pkg.distortion.get(pkg.distortion.Config(
             name=cfg.test_distortion.name,
@@ -73,6 +75,8 @@ def main(cfg):
             w=cfg.test_distortion.kernel_size,
             s=cfg.test_distortion.sigma,
             qf=cfg.test_distortion.quality_factor,
+            ps=cfg.test_distortion.probabilities,
+            ss=cfg.test_distortion.sigmas,
         )),
         train_distortion_parallelable=cfg.train_distortion.parallelable,
         test_distortion_parallelable=cfg.test_distortion.parallelable,
