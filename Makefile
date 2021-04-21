@@ -9,8 +9,10 @@ debug: gpu_ids = [0,1]
 debug:
 	poetry run python cmd/train.py config/experiment@experiment=debug config/distortion@train_distortion=$(train_dis) config/distortion@test_distortion=$(test_dis) training.epochs=1 training.test_interval=1 gpu_ids=$(gpu_ids)
 
+debug-mac: train_dis = combined
+debug-mac: test_dis = identity
 debug-mac:
-	poetry run python cmd/train.py config/experiment@experiment=debug config/distortion@train_distortion=crop config/distortion@test_distortion=dropout training.epochs=1 training.test_interval=1 data.root=/Users/tanimu/data gpu_ids=[]
+	poetry run python cmd/train.py config/experiment@experiment=debug config/distortion@train_distortion=$(train_dis) config/distortion@test_distortion=$(test_dis) training.epochs=1 training.test_interval=1 data.root=/Users/tanimu/data gpu_ids=[]
 
 train-identity:
 	poetry run python cmd/train.py \
