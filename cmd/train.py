@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath("."))
 
 import pkg.cycle
 import pkg.data_controller
-import pkg.distortion
+import pkg.distorter
 import pkg.experiment
 import pkg.iterator
 import pkg.model
@@ -58,9 +58,9 @@ def main(cfg):
     if cfg.experiment.resume_training:
         last_epoch, ckpt = experiment.load_checkpoint()
 
-    pkg.distortion.init(datastats.means(), datastats.stds())
+    pkg.distorter.init(datastats.means(), datastats.stds())
     model = pkg.model.HiddenModel(
-        train_distortioner=pkg.distortion.get(pkg.distortion.Config(
+        train_distorter=pkg.distorter.get(pkg.distorter.Config(
             name=cfg.train_distortion.name,
             p=cfg.train_distortion.probability,
             w=cfg.train_distortion.kernel_size,
@@ -69,7 +69,7 @@ def main(cfg):
             ps=cfg.train_distortion.probabilities,
             ss=cfg.train_distortion.sigmas,
         )),
-        test_distortioner=pkg.distortion.get(pkg.distortion.Config(
+        test_distorter=pkg.distorter.get(pkg.distorter.Config(
             name=cfg.test_distortion.name,
             p=cfg.test_distortion.probability,
             w=cfg.test_distortion.kernel_size,

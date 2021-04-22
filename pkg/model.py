@@ -36,23 +36,23 @@ class _Base(nn.Module):
 class HiddenModel(_Base):
     def __init__(
         self,
-        train_distortioner: distortion.Distortioner,
-        test_distortioner: distortion.Distortioner,
+        train_distorter: distortion.Distorter,
+        test_distorter: distortion.Distorter,
         train_distortion_parallelable: bool,
         test_distortion_parallelable: bool,
     ):
         super().__init__()
         self.encoder = pkg.architecture.Encoder()
-        self.train_distortioner = train_distortioner
-        self.test_distortioner = test_distortioner
+        self.train_distorter = train_distorter
+        self.test_distorter = test_distorter
         self.decoder = pkg.architecture.Decoder()
         self.module_names = ["encoder", "decoder"]
-        if train_distortion_parallelable: self.module_names.append("train_distortioner")
-        if test_distortion_parallelable: self.module_names.append("test_distortioner")
+        if train_distortion_parallelable: self.module_names.append("train_distorter")
+        if test_distortion_parallelable: self.module_names.append("test_distorter")
 
     def forward(self, img: torch.FloatTensor, msg: torch.FloatTensor) -> typing.Tuple[torch.FloatTensor, torch.FloatTensor]:
         enc_img = self.encoder(img, msg)
-        dis = self.train_distortioner if self.training else self.test_distortioner
+        dis = self.train_distorter if self.training else self.test_distorter
         dis_img = dis(img, enc_img)
         pred_msg = self.decoder(dis_img)
         return enc_img, dis_img, pred_msg

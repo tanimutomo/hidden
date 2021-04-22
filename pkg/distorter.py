@@ -25,7 +25,7 @@ def init(mean: typing.List[float], std: typing.List[float]):
     distortion.init(mean, std)
 
 
-def get(cfg: Config) -> distortion.Distortioner:
+def get(cfg: Config) -> distortion.Distorter:
     if   cfg.name == "identity": return distortion.Identity()
     elif cfg.name == "dropout": return distortion.Dropout(cfg.p)
     elif cfg.name == "cropout": return distortion.Cropout(cfg.p)
