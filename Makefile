@@ -72,3 +72,12 @@ train-jpegmask:
 		config/distortion@train_distortion=jpeg_mask \
 		config/distortion@test_distortion=jpeg
 
+train-combined: test_dis = jpeg
+train-combined:
+	poetry run python cmd/train.py \
+		experiment.tags=distortion:combined \
+		experiment.use_comet=true \
+		experiment.prefix=combined \
+		config/distortion@train_distortion=combined \
+		config/distortion@test_distortion=$(test_dis)
+
