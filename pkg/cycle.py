@@ -42,11 +42,6 @@ class HiddenTrainConfig:
 
 
 @dataclass
-class HiddenTestConfig:
-    nothing: typing.Any
-
-
-@dataclass
 class HiddenCycle(Cycle):
 
     loss_cfg: HiddenLossConfig
@@ -90,7 +85,7 @@ class HiddenCycle(Cycle):
 
         self._setup()
 
-    def setup_test(self, cfg: HiddenTestConfig, params: typing.Dict[str, object]):
+    def setup_test(self, params: typing.Dict[str, object]):
         if params:
             self._load_parameters(params)
         self._setup()

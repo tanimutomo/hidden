@@ -36,10 +36,10 @@ class _Base(nn.Module):
 class HiddenModel(_Base):
     def __init__(
         self,
-        train_distorter: distortion.Distorter,
-        test_distorter: distortion.Distorter,
-        train_distortion_parallelable: bool,
-        test_distortion_parallelable: bool,
+        train_distorter: distortion.Distorter =None,
+        test_distorter: distortion.Distorter =None,
+        train_distortion_parallelable: bool =True,
+        test_distortion_parallelable: bool =True,
     ):
         super().__init__()
         self.encoder = pkg.architecture.Encoder()

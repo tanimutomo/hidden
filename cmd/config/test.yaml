@@ -26,9 +26,12 @@ experiment:
 distortion:
   name: ???
   probability: 0.0
+  probabilities: [0.0]
   kernel_size: 0
   sigma: 0.0
+  sigmas: [0.0]
   quality_factor: 0
+  parallelable: False
 
 seed: 1234
 gpu_ids: 
