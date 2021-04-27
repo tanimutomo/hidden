@@ -16,10 +16,10 @@ class Cycle:
     metric_keys = []
     img_keys = []
 
-    def train(self, img, msg):
+    def train(self, item: pkg.dataset.DataItem):
         raise NotImplementedError
 
-    def test(self, img, msg):
+    def test(self, item: pkg.dataset.DataItem):
         raise NotImplementedError
 
     def get_checkpoint(self) -> dict:
@@ -127,7 +127,7 @@ class HiddenCycle(Cycle):
         self.optimizer.step()
 
         if item.is_msg_tensor():
-            acc_msg = pkg.metric.message_accuracy(pred_msg, item.msg)
+            acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
         else:
             acc_msg = pkg.metric.word_vector_accuracy(self.wvec, pred_msg, item.msg)
 
@@ -146,10 +146,10 @@ class HiddenCycle(Cycle):
         }
         return metrics, imgs
 
-    def test(self, img, msg) -> typing.Tuple[typing.Dict, typing.Dict]:
+    def test(self, item: pkg.dataset.DataItem) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.eval()
 
-        img, msg = img.to(self.device), msg.to(self.device)
+        img, msg = item.img().to(self.device), item.msg().to(self.device)
         enc_img, nos_img, pred_msg = self.model(img, msg)
 
         err_d_real = pkg.metric.adversarial_real_loss(self.discriminator, img, self.device)
@@ -161,7 +161,10 @@ class HiddenCycle(Cycle):
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
-        acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
+        if item.is_msg_tensor():
+            acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
+        else:
+            acc_msg = pkg.metric.word_vector_accuracy(self.wvec, pred_msg, item.msg)
 
         metrics = {
             "message_loss": err_msg.item(),
