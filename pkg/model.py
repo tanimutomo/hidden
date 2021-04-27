@@ -12,7 +12,7 @@ import pkg.architecture
 
 
 class _Base(nn.Module):
-    def __init__(self, parallelable_modules: typing.List[str], trainable_modules: typing.List[str]):
+    def __init__(self, parallel_modules: typing.List[str], trainable_modules: typing.List[str]):
         super().__init__()
 
     def parallel(self, device_ids: typing.List[int]):
@@ -44,7 +44,7 @@ class HiddenModel(_Base):
         if train_distortion_parallelable: parallel_modules.append("train_distorter")
         if test_distortion_parallelable: parallel_modules.append("test_distorter")
         super().__init__(
-            parallelable_modules=parallel_modules,
+            parallel_modules=parallel_modules,
             trainable_modules=["encoder", "decoder"],
         )
 
@@ -64,7 +64,7 @@ class HiddenModel(_Base):
 class Discriminator(_Base):
     def __init__(self):
         super().__init__(
-            parallelable_modules=["discriminator"],
+            parallel_modules=["discriminator"],
             trainable_modules=["discriminator"],
         )
         self.discriminator = pkg.architecture.Discriminator()
