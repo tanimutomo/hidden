@@ -8,6 +8,7 @@ defaults:
   - config/experiment@experiment: default
   - config/distortion@train_distortion: identity
   - config/distortion@test_distortion: identity
+  - config/dataset@dataset: bit
 
 data:
   resol: 128

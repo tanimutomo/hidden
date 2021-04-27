@@ -15,8 +15,8 @@ Message = typing.Union[torch.FloatTensor, pkg.wordvec.WordVector]
 
 @dataclass
 class DataItem:
-    img Image
-    msg Message
+    img: Image
+    msg: Message
 
     def img(self) -> Image:
         return self.img
@@ -28,7 +28,7 @@ class DataItem:
             return self.msg.vec
 
     def is_msg_tensor(self) -> bool:
-        return true if isinstance(self.msg, torch.FloatTensor) else false
+        return True if isinstance(self.msg, torch.FloatTensor) else False
 
 
 class _Base(torch.utils.data.Dataset):
@@ -80,7 +80,7 @@ class WordMessageDataset(_Base):
         self.num_words = int(num_words)
         self.word_vec = word_vec
 
-    def _get_messages(self, idx: int) -> DataItem:
+    def _get_meesages(self) -> torch.Tensor:
         return self.word_vec.get_with_random(self.num_words)
 
 

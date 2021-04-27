@@ -11,6 +11,7 @@ sys.path.append(os.path.abspath("."))
 
 import pkg.cycle
 import pkg.data_controller
+import pkg.dataset
 import pkg.distorter
 import pkg.experiment
 import pkg.iterator
@@ -43,12 +44,35 @@ def main(cfg):
     experiment.log_experiment_params(omegaconf.OmegaConf.to_container(cfg))
 
     datastats = pkg.dataset.COCODatasetStats()
+    if cfg.dataset.name == "bit":
+        wvec = None
+        train_dataset = pkg.dataset.BitMessageDataset(
+            root_dir=cfg.data.train_path,
+            msg_len=cfg.dataset.msg_len,
+        )
+        test_dataset = pkg.dataset.BitMessageDataset(
+            root_dir=cfg.data.test_path,
+            msg_len=cfg.dataset.msg_len,
+        )
+    elif cfg.dataset.name == "word2vec":
+        wvec = pkg.wordvec.GloVe(use_words=cfg.dataset.use_words)
+        train_dataset = pkg.dataset.WordMessageDataset(
+            root_dir=cfg.data.train_path,
+            num_words=cfg.dataset.num_words,
+            word_vec=wvec,
+        )
+        test_dataset = pkg.dataset.WordMessageDataset(
+            root_dir=cfg.data.test_path,
+            num_words=cfg.dataset.num_words,
+            word_vec=wvec,
+        )
+    else:
+        raise NotImplementedError()
     datactl = pkg.data_controller.DataController(
-        msg_len=cfg.data.msg_len,
         resol=cfg.data.resol,
         dataset_stats=datastats,
-        train_dataset_path=cfg.data.train_path,
-        test_dataset_path=cfg.data.test_path,
+        train_dataset=train_dataset,
+        test_dataset=test_dataset,
         train_batch_size=cfg.data.train_batch_size,
         test_batch_size=cfg.data.test_batch_size,
     )
@@ -87,6 +111,7 @@ def main(cfg):
         model=model,
         device=torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu"),
         gpu_ids=cfg.gpu_ids,
+        wvec=wvec,
     )
     train_cycle.setup_train(
         cfg=pkg.cycle.HiddenTrainConfig(

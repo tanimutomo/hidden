@@ -47,10 +47,11 @@ class HiddenCycle(Cycle):
 
     loss_cfg: HiddenLossConfig
     model: pkg.model.HiddenModel
-    wvec: pkg.wordvec.GloVe
 
     device: torch.device
     gpu_ids: typing.List[int]
+
+    wvec: pkg.wordvec.GloVe =None
 
     metric_keys = [
         "message_loss",
