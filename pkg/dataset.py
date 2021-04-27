@@ -31,7 +31,26 @@ class DataItem:
         return true if isinstance(self.msg, torch.FloatTensor) else false
 
 
-class ByteMessageDataset(torch.utils.data.Dataset):
+class _Base(torch.utils.data.Dataset):
+    def __init__(self, root_dir, img_transform):
+        self.root_dir = root_dir
+        self.img_transform = img_transform
+        self.files = [f for f in os.listdir(root_dir) if os.path.isfile(os.path.join(root_dir, f))]
+
+    def __len__(self):
+        return sum(os.path.isfile(os.path.join(self.root_dir, name)) for name in os.listdir(self.root_dir))
+
+    def __getitem__(self, idx: int) -> DataItem:
+        img = Image.open(os.path.join(self.root_dir, self.files[idx]))
+        if self.img_transform: img = self.img_transform(img)
+        msg = self._get_messages()
+        return DataItem(img=img, msg=msg)
+
+    def _get_messages(self):
+        raise NotImplementedError()
+
+
+class ByteMessageDataset(_Base):
     def __init__(self, root_dir, msg_len, img_transform=None):
         """
         Args:
@@ -40,47 +59,29 @@ class ByteMessageDataset(torch.utils.data.Dataset):
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
-        self.root_dir = root_dir
+        super().__init__(root_dir, img_transform=img_transform)
         self.msg_len = int(msg_len)
-        self.img_transform = img_transform
-        self.files = [f for f in os.listdir(root_dir) if os.path.isfile(os.path.join(root_dir, f))]
 
-    def __len__(self):
-        return sum(os.path.isfile(os.path.join(self.root_dir, name)) for name in os.listdir(self.root_dir))
-
-    def __getitem__(self, idx: int) -> DataItem:
-        img = Image.open(os.path.join(self.root_dir, self.files[idx]))
-        msg = torch.rand(self.msg_len).round()
-        if self.img_transform:
-            img = self.img_transform(img)
-        return img, msg
+    def _get_meesages(self) -> torch.Tensor:
+        return torch.rand(self.msg_len).round()
 
 
-class WordMessageDataset(torch.utils.data.Dataset):
-    def __init__(self, root_dir, num_words, word_vecs, img_transform=None):
+class WordMessageDataset(_Base):
+    def __init__(self, root_dir, num_words, word_vec, img_transform=None):
         """
         Args:
             root_dir (string): Directory with all the images.
             num_words (int): Number of words are embedded to image.
-            word_vecs (tensor): Word embedding vector.
+            word_vec (tensor): Word embedding vector.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
-        self.root_dir = root_dir
+        super().__init__(root_dir, img_transform=img_transform)
         self.num_words = int(num_words)
         self.word_vec = word_vec
-        self.img_transform = img_transform
-        self.files = [f for f in os.listdir(root_dir) if os.path.isfile(os.path.join(root_dir, f))]
 
-    def __len__(self):
-        return sum(os.path.isfile(os.path.join(self.root_dir, name)) for name in os.listdir(self.root_dir))
-
-    def __getitem__(self, idx: int) -> DataItem:
-        img = Image.open(os.path.join(self.root_dir, self.files[idx]))
-        wvec = self.word_vec.get_with_random(self.num_words)
-        if self.img_transform:
-            img = self.img_transform(img)
-        return img, wvec
+    def _get_messages(self, idx: int) -> DataItem:
+        return self.word_vec.get_with_random(self.num_words)
 
 
 @dataclass
