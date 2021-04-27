@@ -1,4 +1,5 @@
 # @package distortion
 
-name: jpeg_mask
+name: jpeg
+quality_factor: 50
 parallelable: true

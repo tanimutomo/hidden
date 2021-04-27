@@ -1,18 +1,21 @@
 hydra:
   run:
-    dir: log/${mode}/${experiment.name}
+    dir: .log/${mode}/${experiment.name}
 
 mode: test
 
 defaults:
   - config/experiment@experiment: default
+  - config/distortion@distortion: identity
 
 data:
   resol: 128
   gray: False
   msg_len: 30
   test_batch_size: 192 # 12
-  test_path: /home/tanimu/data/coco2014/test
+  root: /home/tanimu/data
+  train_path: ${data.root}/coco2014/train
+  test_path: ${data.root}/coco2014/test
 
 experiment:
   tags: null
@@ -20,5 +23,16 @@ experiment:
   model_path: ???
   relative_model_path: ../../../${experiment.model_path}
 
+distortion:
+  name: ???
+  probability: 0.0
+  probabilities: [0.0]
+  kernel_size: 0
+  sigma: 0.0
+  sigmas: [0.0]
+  quality_factor: 0
+  parallelable: False
+
 seed: 1234
-gpu_ids: []
+gpu_ids: 
+  - 0

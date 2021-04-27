@@ -3,3 +3,4 @@
 name: gaussian_blur
 kernel_size: 5
 sigma: 2.0
+parallelable: true

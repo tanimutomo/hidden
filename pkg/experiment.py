@@ -153,7 +153,7 @@ def _to_flat_dict(target :dict, fdict: dict):
     for k, v in target.items(): 
         if isinstance(v, dict):
             for k_, v_ in v.items():
-                next_target[k+"-"+k_] = v_ 
+                next_target[k+"."+k_] = v_ 
         else: 
             fdict[k] = v 
     return _to_flat_dict(next_target, fdict)

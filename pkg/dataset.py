@@ -95,6 +95,12 @@ class DatasetStats:
     u: DataStat
     v: DataStat
 
+    def means(self) -> typing.List[float]:
+        return [self.y.mean, self.u.mean, self.v.mean]
+
+    def stds(self) -> typing.List[float]:
+        return [self.y.std, self.u.std, self.v.std]
+
 
 @dataclass
 class COCODatasetStats:
@@ -103,3 +109,8 @@ class COCODatasetStats:
     u: DataStat =DataStat(mean=0.0, std=0.436)
     v: DataStat =DataStat(mean=0.0, std=0.615)
 
+    def means(self) -> typing.List[float]:
+        return [self.y.mean, self.u.mean, self.v.mean]
+
+    def stds(self) -> typing.List[float]:
+        return [self.y.std, self.u.std, self.v.std]
