@@ -88,6 +88,6 @@ test:
 	poetry run python cmd/test.py \
 		experiment.tags=distortion:$(dis) \
 		experiment.use_comet=true \
-		experiment.prefix=test_$(train_dis_name)_for_$(dis) \
-		experiment.model_path=.log/train/$(train_exp_name)/parameters.pth \
+		experiment.prefix=test_$(train_dis)_for_$(dis) \
+		experiment.model_path=.log/train/$(train_exp)/parameters.pth \
 		config/distortion@distortion=$(dis)
