@@ -33,6 +33,13 @@ class _Base(nn.Module):
                 sd[f"{m}.{k}"] = v
         return sd
 
+    def load_state_dict(self, state_dict, strict: bool =True):
+        for m in self.trainable_modules:
+            sd = dict()
+            for k, v in state_dict.items():
+                if k[:len(m)] == m: sd[k[len(m)+1:]] = v
+            getattr(self, m).load_state_dict(sd, strict)
+
 
 class HiddenModel(_Base):
     def __init__(
