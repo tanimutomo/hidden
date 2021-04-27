@@ -89,5 +89,5 @@ test:
 		experiment.tags=distortion:$(dis) \
 		experiment.use_comet=true \
 		experiment.prefix=test_$(dis)_on_$(train_dis_name) \
-		config/distortion@distortion=$(dis) \
-		path=.log/train/$(train_exp_name)/parameters.pth
+		experiment.model_path=.log/train/$(train_exp_name)/parameters.pth \
+		config/distortion@distortion=$(dis)
