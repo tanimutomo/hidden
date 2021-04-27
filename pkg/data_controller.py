@@ -33,14 +33,14 @@ class DataController:
         img_transformer = pkg.transform.ImageTransformer(self.resol, self.dataset_stats)
 
         if self.require_trainset:
-            train_dataset = pkg.dataset.ByteMessageDataset(self.train_dataset_path, self.msg_len, img_transformer.train)
+            train_dataset = pkg.dataset.BitMessageDataset(self.train_dataset_path, self.msg_len, img_transformer.train)
             self.train_loader =  torch.utils.data.DataLoader(
                 train_dataset, self.train_batch_size, shuffle=True,
                 num_workers=NUM_WORKERS, pin_memory=PIN_MEMORY,
             )
 
         if self.require_testset:
-            test_dataset = pkg.dataset.ByteMessageDataset(self.test_dataset_path, self.msg_len, img_transformer.test)
+            test_dataset = pkg.dataset.BitMessageDataset(self.test_dataset_path, self.msg_len, img_transformer.test)
             self.test_loader =  torch.utils.data.DataLoader(
                 test_dataset, self.test_batch_size, shuffle=False,
                 num_workers=NUM_WORKERS, pin_memory=PIN_MEMORY,

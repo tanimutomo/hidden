@@ -50,7 +50,7 @@ class _Base(torch.utils.data.Dataset):
         raise NotImplementedError()
 
 
-class ByteMessageDataset(_Base):
+class BitMessageDataset(_Base):
     def __init__(self, root_dir, msg_len, img_transform=None):
         """
         Args:
