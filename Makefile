@@ -81,3 +81,13 @@ train-combined:
 		config/distortion@train_distortion=combined \
 		config/distortion@test_distortion=$(test_dis)
 
+test: dis :=
+test: train_dis_name :=
+test: train_exp_name := 
+test:
+	poetry run python cmd/test.py \
+		experiment.tags=distortion:$(dis) \
+		experiment.use_comet=true \
+		experiment.prefix=test_$(dis)_on_$(train_dis_name) \
+		config/distortion@distortion=$(dis) \
+		path=.log/train/$(train_exp_name)/parameters.pth
