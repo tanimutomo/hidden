@@ -14,6 +14,8 @@ import pkg.architecture
 class _Base(nn.Module):
     def __init__(self, parallel_modules: typing.List[str], trainable_modules: typing.List[str]):
         super().__init__()
+        self.parallel_modules = parallel_modules
+        self.trainable_modules = trainable_modules
 
     def parallel(self, device_ids: typing.List[int]):
         if len(device_ids) <= 1: return
