@@ -19,6 +19,8 @@ train-identity:
 		experiment.tags=distortion:identity \
 		experiment.use_comet=true \
 		experiment.prefix=identity
+		config/distortion@train_distortion=identity \
+		config/distortion@test_distortion=identity \
 
 train-dropout:
 	poetry run python cmd/train.py \
