@@ -132,4 +132,5 @@ dmypy.json
 *.my.*
 .vscode
 .log
+.vector_cache
 pkg_test/
