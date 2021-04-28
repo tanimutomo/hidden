@@ -3,7 +3,7 @@ import os
 import io
 import typing
 
-from PIL import Image
+import PIL
 import torch
 
 import pkg.wordvec
@@ -14,18 +14,12 @@ Message = typing.Union[torch.FloatTensor, pkg.wordvec.WordVector]
 
 
 @dataclass
-class DataItem:
-    img: Image
-    msg: Message
+class BatchItem:
+    img: torch.Tensor
+    msg: typing.Union[torch.Tensor, typing.List[pkg.wordvec.WordVector]]
 
-    def img(self) -> Image:
-        return self.img
-
-    def msg(self) -> torch.FloatTensor:
-        if self.is_msg_tensor():
-            return self.msg
-        else:
-            return self.msg.vec
+    def msg_vec(self) -> torch.FloatTensor:
+        return self.msg if self.is_msg_tensor() else self.msg.vec
 
     def is_msg_tensor(self) -> bool:
         return True if isinstance(self.msg, torch.FloatTensor) else False
@@ -40,11 +34,11 @@ class _Base(torch.utils.data.Dataset):
     def __len__(self):
         return sum(os.path.isfile(os.path.join(self.root_dir, name)) for name in os.listdir(self.root_dir))
 
-    def __getitem__(self, idx: int) -> DataItem:
-        img = Image.open(os.path.join(self.root_dir, self.files[idx]))
+    def __getitem__(self, idx: int) -> typing.Tuple[torch.Tensor, torch.Tensor]:
+        img = PIL.Image.open(os.path.join(self.root_dir, self.files[idx]))
         if self.img_transform: img = self.img_transform(img)
         msg = self._get_messages()
-        return DataItem(img=img, msg=msg)
+        return img, msg
 
     def _get_messages(self):
         raise NotImplementedError()
@@ -62,7 +56,7 @@ class BitMessageDataset(_Base):
         super().__init__(root_dir, img_transform=img_transform)
         self.msg_len = int(msg_len)
 
-    def _get_meesages(self) -> torch.Tensor:
+    def _get_messages(self) -> torch.Tensor:
         return torch.rand(self.msg_len).round()
 
 
@@ -80,7 +74,7 @@ class WordMessageDataset(_Base):
         self.num_words = int(num_words)
         self.word_vec = word_vec
 
-    def _get_meesages(self) -> torch.Tensor:
+    def _get_messages(self) -> torch.Tensor:
         return self.word_vec.get_with_random(self.num_words)
 
 

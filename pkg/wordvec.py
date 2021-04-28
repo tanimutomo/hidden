@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import random
 import typing
 
+import numpy as np
 import torch
 import torchtext
 
@@ -9,7 +10,7 @@ import torchtext
 @dataclass
 class WordVector:
     idx: torch.Tensor
-    vec: torch.FloatTensor
+    vec: torch.Tensor
 
 
 @dataclass
@@ -23,7 +24,7 @@ class GloVe:
         if self.use_words > len(glove.itos):
             raise TypeError("cannot use words more than base vector")
         idxs = random.sample(range(0, len(glove.itos)), self.use_words)
-        self._key = glove.itos[idxs]
+        self._key = np.array(glove.itos)[idxs]
         self._vec = glove.vectors[idxs]
 
     def to(self, device: torch.device):
@@ -50,4 +51,4 @@ class GloVe:
         return x.view(*x.shape[:-1], self.use_words, self.dim)
 
     def get_keys(self, idxs: typing.List[int]) -> typing.List[str]:
-        return self._key[idxs]
+        return self._key[idxs].tolist()

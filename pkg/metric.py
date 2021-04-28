@@ -35,9 +35,16 @@ def _adversarial_loss(discriminator, img, device, label_value):
 
 
 def message_accuracy(pred_msg, msg):
+    return torch.mean(1 - (_err_count(pred_msg, msg) / msg.shape[1]))
+
+
+def whole_message_accuracy(pred_msg, msg):
+    return 1 - (torch.sum(torch.clamp(_err_count(pred_msg, msg), 0, 1)) / msg.shape[0])
+
+
+def _err_count(pred_msg, msg):
     bin_pred_msg = torch.round(torch.clamp(pred_msg, 0, 1))
-    err_count = torch.sum(torch.abs(bin_pred_msg - msg), dim=1)
-    return torch.mean(1 - (err_count / msg.shape[1]))
+    return torch.sum(torch.abs(bin_pred_msg - msg), dim=1)
 
 
 def word_vector_accuracy(wvec: pkg.wordvec.GloVe, pred: torch.FloatTensor, ipt: pkg.wordvec.WordVector):

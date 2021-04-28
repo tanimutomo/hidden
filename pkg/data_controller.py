@@ -32,18 +32,22 @@ class DataController:
         img_transformer = pkg.transform.ImageTransformer(self.resol, self.dataset_stats)
 
         if self.require_trainset:
-            self.train_dataset.img_transformer = img_transformer.train
+            self.train_dataset.img_transform = img_transformer.train
             self.train_loader =  torch.utils.data.DataLoader(
                 self.train_dataset, self.train_batch_size, shuffle=True,
-                num_workers=NUM_WORKERS, pin_memory=PIN_MEMORY,
+                num_workers=NUM_WORKERS, pin_memory=PIN_MEMORY, collate_fn=_collate,
             )
 
         if self.require_testset:
-            self.test_dataset.img_transformer = img_transformer.test
+            self.test_dataset.img_transform = img_transformer.test
             self.test_loader =  torch.utils.data.DataLoader(
                 self.test_dataset, self.test_batch_size, shuffle=False,
-                num_workers=NUM_WORKERS, pin_memory=PIN_MEMORY,
+                num_workers=NUM_WORKERS, pin_memory=PIN_MEMORY, collate_fn=_collate,
             )
 
         self.img_post_transformer = img_transformer.post_process if img_transformer.post_process else None
 
+
+def _collate(batch):
+    imgs, msgs = list(zip(*batch))
+    return pkg.dataset.BatchItem(img=torch.stack(list(imgs), dim=0), msg=msgs)
