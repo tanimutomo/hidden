@@ -51,7 +51,6 @@ def train_iter(
                 meter.updates(metric_dict)
 
                 pbar.set_postfix_str(f'metric={metric_dict[trainer.metric_keys[-1]]:.4f}')
-                break
 
         experiment.epoch_report(meter.to_dict(), "train", epoch, cfg.epochs)
         experiment.save_image(img_dict, "train", epoch, datactl.img_post_transformer)
@@ -83,7 +82,6 @@ def test_iter(
                 meter.updates(metric_dict)
 
                 pbar.set_postfix_str(f'metric={metric_dict[tester.metric_keys[-1]]:.4f}')
-                break
 
     experiment.epoch_report(metric_dict, "test", epoch, epochs)
     experiment.save_image(img_dict, "test", epoch, datactl.img_post_transformer)
