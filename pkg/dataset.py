@@ -10,19 +10,47 @@ import pkg.wordvec
 
 
 Image = torch.FloatTensor
-Message = typing.Union[torch.FloatTensor, pkg.wordvec.WordVector]
-
+Message = typing.Union[torch.FloatTensor, pkg.wordvec.Pair]
 
 @dataclass
-class BatchItem:
+class Item:
     img: torch.Tensor
-    msg: typing.Union[torch.Tensor, typing.List[pkg.wordvec.WordVector]]
+    msg: typing.Union[torch.Tensor, pkg.wordvec.Pair]
+    _w2v: pkg.wordvec.GloVe =None
 
     def msg_vec(self) -> torch.FloatTensor:
-        return self.msg if self.is_msg_tensor() else self.msg.vec
+        return self.msg if self.msg_is_tensor() else self.msg.vec
 
-    def is_msg_tensor(self) -> bool:
+    def msg_is_tensor(self) -> bool:
         return True if isinstance(self.msg, torch.FloatTensor) else False
+
+
+class BatchItem:
+    _img: torch.Tensor
+    _msg: typing.Union[torch.Tensor, typing.List[pkg.wordvec.WordVector]]
+
+    def __init__(self, items: typing.Tuple[Item]):
+        self._img = torch.stack([item.img for item in list(items)], dim=0)
+        if items[0].msg_is_tensor():
+            self._msg = torch.stack([item.msg for item in list(items)], dim=0)
+        else:
+            self._msg = pkg.wordvec.WordVector(
+                idx=torch.stack([torch.tensor(item.msg.idx) for item in list(items)], dim=1),
+                vec=torch.stack([item.msg.vec for item in list(items)], dim=0),
+                w2v=items[0]._w2v,
+            )
+
+    def img(self):
+        return self._img
+
+    def msg(self):
+        return self._msg
+
+    def msg_vec(self) -> torch.FloatTensor:
+        return self._msg if self.msg_is_tensor() else self._msg.serialized()
+
+    def msg_is_tensor(self) -> bool:
+        return True if isinstance(self._msg, torch.FloatTensor) else False
 
 
 class _Base(torch.utils.data.Dataset):
@@ -38,9 +66,12 @@ class _Base(torch.utils.data.Dataset):
         img = PIL.Image.open(os.path.join(self.root_dir, self.files[idx]))
         if self.img_transform: img = self.img_transform(img)
         msg = self._get_messages()
-        return img, msg
+        return self._construct_item(img, msg)
 
     def _get_messages(self):
+        raise NotImplementedError()
+
+    def _construct_item(self, img, msg) -> Item:
         raise NotImplementedError()
 
 
@@ -59,6 +90,9 @@ class BitMessageDataset(_Base):
     def _get_messages(self) -> torch.Tensor:
         return torch.rand(self.msg_len).round()
 
+    def _construct_item(self, img, msg) -> Item:
+        return Item(img=img, msg=msg)
+
 
 class WordMessageDataset(_Base):
     def __init__(self, root_dir, num_words, word_vec, img_transform=None):
@@ -72,10 +106,13 @@ class WordMessageDataset(_Base):
         """
         super().__init__(root_dir, img_transform=img_transform)
         self.num_words = int(num_words)
-        self.word_vec = word_vec
+        self.wvec = word_vec
 
-    def _get_messages(self) -> torch.Tensor:
-        return self.word_vec.get_with_random(self.num_words)
+    def _get_messages(self) -> pkg.wordvec.Pair:
+        return self.wvec.get_with_random(self.num_words)
+
+    def _construct_item(self, img, msg) -> Item:
+        return Item(img=img, msg=msg, _w2v=self.wvec)
 
 
 @dataclass

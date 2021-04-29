@@ -47,6 +47,14 @@ def _err_count(pred_msg, msg):
     return torch.sum(torch.abs(bin_pred_msg - msg), dim=1)
 
 
-def word_vector_accuracy(wvec: pkg.wordvec.GloVe, pred: torch.FloatTensor, ipt: pkg.wordvec.WordVector):
-    appro_pred = wvec.most_similar(pred)
-    return torch.sum(appro_pred.idx == ipt.idx) / ipt.idx.shape[0]
+def zero(_1, _2):
+    return torch.tensor(0.0)
+
+
+class WordVectorMessageAccuracy:
+    def __init__(self, w2v: pkg.wordvec.GloVe):
+        self.w2v = w2v
+
+    def __call__(self, pred: torch.Tensor, vec: pkg.wordvec.WordVector) -> torch.Tensor:
+        appro_pred = self.w2v.most_similar(pred)
+        return torch.sum(appro_pred.idx == vec.idx) / (vec.idx.shape[0] * 1.0)

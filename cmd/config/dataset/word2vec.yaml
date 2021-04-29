@@ -2,4 +2,5 @@
 
 name: word2vec
 num_words: 1
+dim: 50
 use_words: 1000

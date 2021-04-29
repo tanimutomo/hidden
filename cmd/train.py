@@ -45,7 +45,7 @@ def main(cfg):
 
     datastats = pkg.dataset.COCODatasetStats()
     if cfg.dataset.name == "bit":
-        wvec = None
+        w2v = None
         train_dataset = pkg.dataset.BitMessageDataset(
             root_dir=cfg.data.train_path,
             msg_len=cfg.dataset.msg_len,
@@ -55,16 +55,16 @@ def main(cfg):
             msg_len=cfg.dataset.msg_len,
         )
     elif cfg.dataset.name == "word2vec":
-        wvec = pkg.wordvec.GloVe(use_words=cfg.dataset.use_words)
+        w2v = pkg.wordvec.GloVe(use_words=cfg.dataset.use_words)
         train_dataset = pkg.dataset.WordMessageDataset(
             root_dir=cfg.data.train_path,
             num_words=cfg.dataset.num_words,
-            word_vec=wvec,
+            word_vec=w2v,
         )
         test_dataset = pkg.dataset.WordMessageDataset(
             root_dir=cfg.data.test_path,
             num_words=cfg.dataset.num_words,
-            word_vec=wvec,
+            word_vec=w2v,
         )
     else:
         raise NotImplementedError()
@@ -84,6 +84,7 @@ def main(cfg):
 
     pkg.distorter.init(datastats.means(), datastats.stds())
     model = pkg.model.HiddenModel(
+        msg_len=cfg.dataset.msg_len if cfg.dataset.name == "bit" else cfg.dataset.dim * cfg.dataset.num_words,
         train_distorter=pkg.distorter.get(pkg.distorter.Config(
             name=cfg.train_distortion.name,
             p=cfg.train_distortion.probability,
@@ -109,9 +110,10 @@ def main(cfg):
     train_cycle = pkg.cycle.HiddenCycle(
         loss_cfg=pkg.cycle.HiddenLossConfig(),
         model=model,
+        bit_msg_acc_fn=pkg.metric.message_accuracy if cfg.dataset.name == "bit" else pkg.metric.zero,
+        msg_acc_fn=pkg.metric.whole_message_accuracy if cfg.dataset.name == "bit" else pkg.metric.WordVectorMessageAccuracy(w2v),
         device=torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu"),
         gpu_ids=cfg.gpu_ids,
-        wvec=wvec,
     )
     train_cycle.setup_train(
         cfg=pkg.cycle.HiddenTrainConfig(

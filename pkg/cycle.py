@@ -47,11 +47,11 @@ class HiddenCycle(Cycle):
 
     loss_cfg: HiddenLossConfig
     model: pkg.model.HiddenModel
+    msg_acc_fn: typing.Callable[[torch.Tensor, torch.Tensor], torch.Tensor]
+    bit_msg_acc_fn: typing.Callable[[torch.Tensor, torch.Tensor], torch.Tensor]
 
     device: torch.device
     gpu_ids: typing.List[int]
-
-    wvec: pkg.wordvec.GloVe =None
 
     metric_keys = [
         "message_loss",
@@ -60,7 +60,7 @@ class HiddenCycle(Cycle):
         "adversarial_discriminator_loss",
         "model_loss",
         "message_accuracy",
-        "whole_message_accuracy",
+        "bit_message_accuracy",
     ]
     img_keys = [
         "input",
@@ -103,7 +103,7 @@ class HiddenCycle(Cycle):
     def train(self, item: pkg.dataset.BatchItem) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.train()
 
-        img, msg = item.img.to(self.device), item.msg_vec().to(self.device)
+        img, msg = item.img().to(self.device), item.msg_vec().to(self.device)
 
         self.discriminator.zero_grad()
 
@@ -128,12 +128,8 @@ class HiddenCycle(Cycle):
 
         self.optimizer.step()
 
-        if item.is_msg_tensor():
-            acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
-            wacc_msg = pkg.mertic.whole_message_accuracy(pred_msg, msg)
-        else:
-            acc_msg = pkg.metric.word_vector_accuracy(self.wvec, pred_msg, item.msg)
-            wacc_msg = torch.tensor(0.0)
+        acc_msg = self.msg_acc_fn(pred_msg, item.msg())
+        bit_acc_msg = self.bit_msg_acc_fn(pred_msg, item.msg())
 
         metrics = {
             "message_loss": err_msg.item(),
@@ -142,7 +138,7 @@ class HiddenCycle(Cycle):
             "adversarial_discriminator_loss": err_d_real.item() + err_d_fake.item(),
             "model_loss": err_model.item(),
             "message_accuracy": acc_msg.item(),
-            "whole_message_accuracy": wacc_msg.item(),
+            "bit_message_accuracy": bit_acc_msg.item(),
         }
         imgs = {
             "input": img[0].cpu().detach(),
@@ -154,7 +150,7 @@ class HiddenCycle(Cycle):
     def test(self, item: pkg.dataset.BatchItem) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.eval()
 
-        img, msg = item.img.to(self.device), item.msg_vec().to(self.device)
+        img, msg = item.img().to(self.device), item.msg_vec().to(self.device)
         enc_img, nos_img, pred_msg = self.model(img, msg)
 
         err_d_real = pkg.metric.adversarial_real_loss(self.discriminator, img, self.device)
@@ -166,12 +162,8 @@ class HiddenCycle(Cycle):
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
-        if item.is_msg_tensor():
-            acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
-            wacc_msg = pkg.mertic.whole_message_accuracy(pred_msg, msg)
-        else:
-            acc_msg = pkg.metric.word_vector_accuracy(self.wvec, pred_msg, item.msg)
-            wacc_msg = torch.tensor(0.0)
+        acc_msg = self.msg_acc_fn(pred_msg, item.msg())
+        bit_acc_msg = self.bit_msg_acc_fn(pred_msg, item.msg())
 
         metrics = {
             "message_loss": err_msg.item(),
@@ -180,7 +172,7 @@ class HiddenCycle(Cycle):
             "adversarial_discriminator_loss": err_d_real.item() + err_d_fake.item(),
             "model_loss": err_model.item(),
             "message_accuracy": acc_msg.item(),
-            "whole_message_accuracy": wacc_msg.item(),
+            "bit_message_accuracy": bit_acc_msg.item(),
         }
         imgs = {
             "input": img[0].cpu().detach(),

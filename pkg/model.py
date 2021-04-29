@@ -12,6 +12,8 @@ import pkg.architecture
 
 
 class _Base(nn.Module):
+    _is_parallel: bool =False
+
     def __init__(self, parallel_modules: typing.List[str], trainable_modules: typing.List[str]):
         super().__init__()
         self.parallel_modules = parallel_modules
@@ -44,6 +46,7 @@ class _Base(nn.Module):
 class HiddenModel(_Base):
     def __init__(
         self,
+        msg_len: int,
         train_distorter: distortion.Distorter =None,
         test_distorter: distortion.Distorter =None,
         train_distortion_parallelable: bool =True,
@@ -57,10 +60,10 @@ class HiddenModel(_Base):
             trainable_modules=["encoder", "decoder"],
         )
 
-        self.encoder = pkg.architecture.Encoder()
+        self.encoder = pkg.architecture.Encoder(msg_c=msg_len)
         self.train_distorter = train_distorter
         self.test_distorter = test_distorter
-        self.decoder = pkg.architecture.Decoder()
+        self.decoder = pkg.architecture.Decoder(out_c=msg_len)
 
     def forward(self, img: torch.FloatTensor, msg: torch.FloatTensor) -> typing.Tuple[torch.FloatTensor, torch.FloatTensor]:
         enc_img = self.encoder(img, msg)

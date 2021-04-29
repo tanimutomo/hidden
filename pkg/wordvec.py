@@ -8,8 +8,8 @@ import torchtext
 
 
 @dataclass
-class WordVector:
-    idx: torch.Tensor
+class Pair:
+    idx: typing.List[int]
     vec: torch.Tensor
 
 
@@ -30,15 +30,15 @@ class GloVe:
     def to(self, device: torch.device):
         self._vec.to(device)
 
-    def get_with_random(self, num_words: int) -> WordVector:
+    def get_with_random(self, num_words: int) -> Pair:
         idxs = random.sample(range(0, self._vec.shape[0]), num_words)
-        return WordVector(idx=idxs, vec=self._vec[idxs])
+        return Pair(idx=idxs, vec=self._vec[idxs])
 
-    def most_similar(self, x: torch.FloatTensor) -> WordVector:
+    def most_similar(self, x: torch.FloatTensor) -> Pair:
         if x.shape[-1] != self.dim:
             raise TypeError
         idx = torch.argmin(torch.norm(self._vec - x.unsqueeze(-2), dim=-1), dim=-1)
-        return WordVector(idx=idx, vec=self._vec[idx])
+        return Pair(idx=idx, vec=self._vec[idx])
     
     def serialize(self, x: torch.FloatTensor) -> torch.FloatTensor:
         if x.ndim < 2 or x.shape[-1] != self.dim:
@@ -52,3 +52,17 @@ class GloVe:
 
     def get_keys(self, idxs: typing.List[int]) -> typing.List[str]:
         return self._key[idxs].tolist()
+
+
+@dataclass
+class WordVector:
+    idx: torch.Tensor
+    vec: torch.Tensor
+    w2v: GloVe
+
+    def serialized(self):
+        return self.vec.view(*self.vec.shape[:-2], -1)
+
+    def most_similar(self) -> Pair:
+        self.w2v.most_similar(self.vec)
+
