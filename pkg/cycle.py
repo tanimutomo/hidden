@@ -103,7 +103,8 @@ class HiddenCycle(Cycle):
     def train(self, item: pkg.dataset.BatchItem) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.train()
 
-        img, msg = item.img().to(self.device), item.msg_vec().to(self.device)
+        item.to_(self.device)
+        img, msg = item.img(), item.msg_vec()
 
         self.discriminator.zero_grad()
 
@@ -150,6 +151,7 @@ class HiddenCycle(Cycle):
     def test(self, item: pkg.dataset.BatchItem) -> typing.Tuple[typing.Dict, typing.Dict]:
         self.discriminator.eval()
 
+        item.to_(self.device)
         img, msg = item.img().to(self.device), item.msg_vec().to(self.device)
         enc_img, nos_img, pred_msg = self.model(img, msg)
 

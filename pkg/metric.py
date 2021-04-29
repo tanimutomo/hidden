@@ -57,4 +57,6 @@ class WordVectorMessageAccuracy:
 
     def __call__(self, pred: torch.Tensor, vec: pkg.wordvec.WordVector) -> torch.Tensor:
         appro_pred = self.w2v.most_similar(pred)
-        return torch.sum(appro_pred.idx == vec.idx) / (vec.idx.shape[0] * 1.0)
+        vec_idx = vec.idx.to(pred.device)
+        return torch.sum(appro_pred.idx == vec_idx) / (vec_idx.shape[0] * 1.0)
+

@@ -9,8 +9,8 @@ import torch
 import pkg.wordvec
 
 
-Image = torch.FloatTensor
-Message = typing.Union[torch.FloatTensor, pkg.wordvec.Pair]
+Image = torch.Tensor
+Message = typing.Union[torch.Tensor, pkg.wordvec.Pair]
 
 @dataclass
 class Item:
@@ -18,11 +18,11 @@ class Item:
     msg: typing.Union[torch.Tensor, pkg.wordvec.Pair]
     _w2v: pkg.wordvec.GloVe =None
 
-    def msg_vec(self) -> torch.FloatTensor:
+    def msg_vec(self) -> torch.Tensor:
         return self.msg if self.msg_is_tensor() else self.msg.vec
 
     def msg_is_tensor(self) -> bool:
-        return True if isinstance(self.msg, torch.FloatTensor) else False
+        return True if isinstance(self.msg, torch.Tensor) else False
 
 
 class BatchItem:
@@ -46,11 +46,15 @@ class BatchItem:
     def msg(self):
         return self._msg
 
-    def msg_vec(self) -> torch.FloatTensor:
+    def msg_vec(self) -> torch.Tensor:
         return self._msg if self.msg_is_tensor() else self._msg.serialized()
 
     def msg_is_tensor(self) -> bool:
-        return True if isinstance(self._msg, torch.FloatTensor) else False
+        return True if isinstance(self._msg, torch.Tensor) else False
+
+    def to_(self, device: torch.device):
+        self._img = self._img.to(device)
+        self._msg = self._msg.to(device)
 
 
 class _Base(torch.utils.data.Dataset):

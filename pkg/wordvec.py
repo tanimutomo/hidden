@@ -27,9 +27,6 @@ class GloVe:
         self._key = np.array(glove.itos)[idxs]
         self._vec = glove.vectors[idxs]
 
-    def to(self, device: torch.device):
-        self._vec.to(device)
-
     def get_with_random(self, num_words: int) -> Pair:
         idxs = random.sample(range(0, self._vec.shape[0]), num_words)
         return Pair(idx=idxs, vec=self._vec[idxs])
@@ -37,7 +34,8 @@ class GloVe:
     def most_similar(self, x: torch.FloatTensor) -> Pair:
         if x.shape[-1] != self.dim:
             raise TypeError
-        idx = torch.argmin(torch.norm(self._vec - x.unsqueeze(-2), dim=-1), dim=-1)
+        vec = self._vec.to(x.device)
+        idx = torch.argmin(torch.norm(vec - x.unsqueeze(-2), dim=-1), dim=-1)
         return Pair(idx=idx, vec=self._vec[idx])
     
     def serialize(self, x: torch.FloatTensor) -> torch.FloatTensor:
@@ -65,4 +63,8 @@ class WordVector:
 
     def most_similar(self) -> Pair:
         self.w2v.most_similar(self.vec)
+
+    def to(self, device: torch.device):
+        self.vec = self.vec.to(device)
+        return self
 

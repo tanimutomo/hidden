@@ -43,6 +43,8 @@ def main(cfg):
     )
     experiment.log_experiment_params(omegaconf.OmegaConf.to_container(cfg))
 
+    device = torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu")
+
     datastats = pkg.dataset.COCODatasetStats()
     if cfg.dataset.name == "bit":
         w2v = None
@@ -112,7 +114,7 @@ def main(cfg):
         model=model,
         bit_msg_acc_fn=pkg.metric.message_accuracy if cfg.dataset.name == "bit" else pkg.metric.zero,
         msg_acc_fn=pkg.metric.whole_message_accuracy if cfg.dataset.name == "bit" else pkg.metric.WordVectorMessageAccuracy(w2v),
-        device=torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu"),
+        device=device,
         gpu_ids=cfg.gpu_ids,
     )
     train_cycle.setup_train(
