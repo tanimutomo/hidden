@@ -18,67 +18,71 @@ debug-mac:
 
 train-identity:
 	poetry run python cmd/train.py \
-		experiment.tags=distortion:identity \
+		experiment.tags=[distortion:identity,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=identity \
+		experiment.prefix=$(dataset)_identity \
 		config/distortion@train_distortion=identity \
 		config/distortion@test_distortion=identity \
 		config/dataset@dataset=$(dataset)
 
+train-dropout: p := 0.3
 train-dropout:
 	poetry run python cmd/train.py \
-		experiment.tags=distortion:dropout \
+		experiment.tags=[distortion:dropout,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=dropout_p:0.3 \
+		experiment.prefix=$(dataset)_dropout_p:$(p) \
 		config/distortion@train_distortion=dropout \
 		config/distortion@test_distortion=dropout \
-		distortion.probability=0.3 \
+		distortion.probability=$(p) \
 		config/dataset@dataset=$(dataset)
 
+train-cropout: p := 0.3
 train-cropout:
 	poetry run python cmd/train.py \
-		experiment.tags=distortion:cropout \
-		experiment.use_comet=true \
-		experiment.prefix=cropout_p:0.3 \
+		experiment.tags=[distortion:cropout,dataset:$(dataset)] \
+		expeciment.use_comet=true \
+		experiment.prefix=$(dataset)_cropout_p:$(p) \
 		config/distortion@train_distortion=cropout aa\
 		config/distortion@test_distortion=cropout \
-		distortion.probability=0.3 \
+		distortion.probability=$(p) \
 		config/dataset@dataset=$(dataset)
 
+train-crop: p := 0.035
 train-crop:
 	poetry run python cmd/train.py \
-		experiment.tags=distortion:crop \
+		experiment.tags=[distortion:crop,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=crop_p:0.035 \
+		experiment.prefix=$(dataset)_crop_p:$(p) \
 		config/distortion@train_distortion=crop \
 		config/distortion@test_distortion=crop \
-		distortion.probability=0.035 \
+		distortion.probability=$(p) \
 		config/dataset@dataset=$(dataset)
 
+train-gaussian: sigma := 2.0
 train-gaussian:
 	poetry run python cmd/train.py \
-		experiment.tags=distortion:gaussian \
+		experiment.tags=[distortion:gaussian,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=gaussian_sigma:2.0 \
+		experiment.prefix=$(dataset)_gaussian_sigma:$(sigma) \
 		config/distortion@train_distortion=gaussian_blur \
 		config/distortion@test_distortion=gaussian_blur \
-		distortion.sigma=2.0 \
+		distortion.sigma=$(sigma) \
 		config/dataset@dataset=$(dataset)
 
 train-jpegdrop:
 	poetry run python cmd/train.py \
-		experiment.tags=distortion:jpeg_drop \
+		experiment.tags=[distortion:jpeg_drop,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=jpeg_drop \
+		experiment.prefix=$(dataset)_jpeg_drop \
 		config/distortion@train_distortion=jpeg_drop \
 		config/distortion@test_distortion=jpeg \
 		config/dataset@dataset=$(dataset)
 
 train-jpegmask:
 	poetry run python cmd/train.py \
-		experiment.tags=distortion:jpeg_mask \
+		experiment.tags=[distortion:jpeg_mask,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=jpeg_mask \
+		experiment.prefix=$(dataset)_jpeg_mask \
 		config/distortion@train_distortion=jpeg_mask \
 		config/distortion@test_distortion=jpeg \
 		config/dataset@dataset=$(dataset)
@@ -86,9 +90,9 @@ train-jpegmask:
 train-combined: test_dis = jpeg
 train-combined:
 	poetry run python cmd/train.py \
-		experiment.tags=distortion:combined \
+		experiment.tags=[distortion:combined,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=combined \
+		experiment.prefix=$(dataset)_combined \
 		config/distortion@train_distortion=combined \
 		config/distortion@test_distortion=$(test_dis) \
 		config/dataset@dataset=$(dataset)
@@ -98,9 +102,9 @@ test: train_dis :=
 test: train_exp := 
 test:
 	poetry run python cmd/test.py \
-		experiment.tags=distortion:$(dis) \
+		experiment.tags=[distortion:$(dis),dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=test_$(train_dis)_for_$(dis) \
+		experiment.prefix=$(dataset)_test_$(train_dis)_for_$(dis) \
 		experiment.model_path=.log/train/$(train_exp)/parameters.pth \
 		config/distortion@distortion=$(dis) \
 		config/dataset@dataset=$(dataset)
