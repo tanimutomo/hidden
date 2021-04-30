@@ -1,6 +1,6 @@
 # @package dataset
 
-name: word2vec
+name: word
 num_words: 1
 dim: 50
 use_words: 1000

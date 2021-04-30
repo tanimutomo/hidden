@@ -56,7 +56,7 @@ def main(cfg):
             root_dir=cfg.data.test_path,
             msg_len=cfg.dataset.msg_len,
         )
-    elif cfg.dataset.name == "word2vec":
+    elif cfg.dataset.name == "word":
         w2v = pkg.wordvec.GloVe(use_words=cfg.dataset.use_words)
         train_dataset = pkg.dataset.WordMessageDataset(
             root_dir=cfg.data.train_path,
