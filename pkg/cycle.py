@@ -138,8 +138,8 @@ class HiddenCycle(Cycle):
             "adversarial_generator_loss": err_g.item(),
             "adversarial_discriminator_loss": err_d_real.item() + err_d_fake.item(),
             "model_loss": err_model.item(),
-            "message_accuracy": acc_msg.item(),
             "bit_message_accuracy": bit_acc_msg.item(),
+            "message_accuracy": acc_msg.item(),
         }
         imgs = {
             "input": img[0].cpu().detach(),
@@ -173,8 +173,8 @@ class HiddenCycle(Cycle):
             "adversarial_generator_loss": err_g.item(),
             "adversarial_discriminator_loss": err_d_real.item() + err_d_fake.item(),
             "model_loss": err_model.item(),
-            "message_accuracy": acc_msg.item(),
             "bit_message_accuracy": bit_acc_msg.item(),
+            "message_accuracy": acc_msg.item(),
         }
         imgs = {
             "input": img[0].cpu().detach(),
