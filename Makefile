@@ -33,7 +33,8 @@ train-dropout:
 		experiment.prefix=$(dataset)_dropout_p:$(p) \
 		config/distortion@train_distortion=dropout \
 		config/distortion@test_distortion=dropout \
-		distortion.probability=$(p) \
+		train_distortion.probability=$(p) \
+		test_distortion.probability=$(p) \
 		config/dataset@dataset=$(dataset)
 
 train-cropout: p := 0.3
@@ -44,7 +45,8 @@ train-cropout:
 		experiment.prefix=$(dataset)_cropout_p:$(p) \
 		config/distortion@train_distortion=cropout aa\
 		config/distortion@test_distortion=cropout \
-		distortion.probability=$(p) \
+		train_distortion.probability=$(p) \
+		test_distortion.probability=$(p) \
 		config/dataset@dataset=$(dataset)
 
 train-crop: p := 0.035
@@ -55,7 +57,8 @@ train-crop:
 		experiment.prefix=$(dataset)_crop_p:$(p) \
 		config/distortion@train_distortion=crop \
 		config/distortion@test_distortion=crop \
-		distortion.probability=$(p) \
+		train_distortion.probability=$(p) \
+		test_distortion.probability=$(p) \
 		config/dataset@dataset=$(dataset)
 
 train-gaussian: sigma := 2.0
@@ -66,7 +69,8 @@ train-gaussian:
 		experiment.prefix=$(dataset)_gaussian_sigma:$(sigma) \
 		config/distortion@train_distortion=gaussian_blur \
 		config/distortion@test_distortion=gaussian_blur \
-		distortion.sigma=$(sigma) \
+		train_distortion.sigma=$(sigma) \
+		test_distortion.sigma=$(sigma) \
 		config/dataset@dataset=$(dataset)
 
 train-jpegdrop:
