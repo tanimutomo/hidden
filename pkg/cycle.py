@@ -16,8 +16,6 @@ class Output:
 class Cycle:
 
     model: pkg.model.HiddenModel
-    metric_keys = []
-    img_keys = []
 
     def train(self, item: pkg.dataset.BatchItem) -> Output:
         raise NotImplementedError
@@ -211,8 +209,8 @@ class HiddenCycle(Cycle):
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
-        acc_msg = self.msg_acc_fn(pred_msg, item.msg())
-        bit_acc_msg = self.bit_msg_acc_fn(pred_msg, item.msg())
+        acc_msg = pkg.metric.whole_message_accuracy(pred_msg, msg)
+        bit_acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
 
         return HiddenOutput(
             metric=HiddenMetricOutput(
