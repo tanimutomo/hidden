@@ -98,7 +98,7 @@ class BitMessageDataset(_Base):
 
 
 class WordMessageDataset(_Base):
-    def __init__(self, root_dir, num_words, word_vec, img_transform=None):
+    def __init__(self, root_dir, word_vec, img_transform=None):
         """
         Args:
             root_dir (string): Directory with all the images.
