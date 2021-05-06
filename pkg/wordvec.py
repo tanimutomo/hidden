@@ -56,13 +56,9 @@ class GloVe:
 class WordVector:
     idx: torch.Tensor
     vec: torch.Tensor
-    w2v: GloVe
 
     def serialized(self):
         return self.vec.view(*self.vec.shape[:-2], -1)
-
-    def most_similar(self) -> Pair:
-        self.w2v.most_similar(self.vec)
 
     def to(self, device: torch.device):
         self.vec = self.vec.to(device)

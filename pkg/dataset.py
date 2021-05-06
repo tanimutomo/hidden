@@ -37,7 +37,6 @@ class BatchItem:
             self._msg = pkg.wordvec.WordVector(
                 idx=torch.stack([torch.tensor(item.msg.idx) for item in list(items)], dim=1),
                 vec=torch.stack([item.msg.vec for item in list(items)], dim=0),
-                w2v=items[0]._w2v,
             )
 
     def img(self):

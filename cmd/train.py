@@ -27,8 +27,8 @@ def main(cfg):
     validate_config(cfg)
     if cfg.seed: pkg.seed.set_seed(cfg.seed)
 
-    experiment = pkg.experiment.Experiment(
-        cfg=pkg.experiment.ExperimentConfig(
+    pkg.experiment.init(
+        cfg=pkg.experiment.Config(
             name=cfg.experiment.name,
             tags=cfg.experiment.tags,
             use_comet=cfg.experiment.use_comet,
@@ -40,8 +40,9 @@ def main(cfg):
                 resume_experiment_key=cfg.experiment.comet.resume_experiment_key,
             )
         ),
+        epochs=cfg.training.epochs,
     )
-    experiment.log_experiment_params(omegaconf.OmegaConf.to_container(cfg))
+    pkg.experiment.log_hyper_parameters(omegaconf.OmegaConf.to_container(cfg))
 
     device = torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu")
 
@@ -82,7 +83,7 @@ def main(cfg):
     last_epoch = 0
     ckpt = None
     if cfg.experiment.resume_training:
-        last_epoch, ckpt = experiment.load_checkpoint()
+        last_epoch, ckpt = pkg.experiment.get_checkpoint()
 
     pkg.distorter.init(datastats.means(), datastats.stds())
     model = pkg.model.HiddenModel(
@@ -109,14 +110,21 @@ def main(cfg):
         test_distortion_parallelable=cfg.test_distortion.parallelable,
     )
 
-    train_cycle = pkg.cycle.HiddenCycle(
-        loss_cfg=pkg.cycle.HiddenLossConfig(),
-        model=model,
-        bit_msg_acc_fn=pkg.metric.message_accuracy if cfg.dataset.name == "bit" else pkg.metric.zero,
-        msg_acc_fn=pkg.metric.whole_message_accuracy if cfg.dataset.name == "bit" else pkg.metric.WordVectorMessageAccuracy(w2v),
-        device=device,
-        gpu_ids=cfg.gpu_ids,
-    )
+    if cfg.dataset.name == "bit":
+        train_cycle = pkg.cycle.HiddenCycle(
+            loss_cfg=pkg.cycle.HiddenLossConfig(),
+            model=model,
+            device=device,
+            gpu_ids=cfg.gpu_ids,
+        )
+    elif cfg.dataset.name == "word":
+        train_cycle = pkg.cycle.WordHiddenCycle(
+            loss_cfg=pkg.cycle.HiddenLossConfig(),
+            model=model,
+            w2v=w2v,
+            device=device,
+            gpu_ids=cfg.gpu_ids,
+        )
     train_cycle.setup_train(
         cfg=pkg.cycle.HiddenTrainConfig(
             optimizer_lr=cfg.train.optimizer_lr,
@@ -137,12 +145,13 @@ def main(cfg):
             lr_scheduler_state_dict=ckpt["scheduler"] if ckpt else None,
         ),
         trainer=train_cycle, 
-        datactl=datactl, 
-        experiment=experiment,
+        datactl=datactl,
+        log=pkg.iterator.log_bit_outputs if cfg.dataset.name == "bit" else pkg.iterator.log_word_outputs,
+        metrics=pkg.cycle.HiddenMetricOutput.keys() if cfg.dataset.name == "bit" else pkg.cycle.WordHiddenMetricOutput.keys(),
     )
     print("End Training")
 
-    experiment.save_parameters(train_cycle.get_parameters(), cfg.training.epochs)
+    pkg.experiment.log_parameters(train_cycle.get_parameters())
 
 
 def validate_config(cfg):

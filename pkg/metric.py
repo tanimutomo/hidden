@@ -1,3 +1,5 @@
+import typing
+
 import torch
 import torch.nn.functional as F
 
@@ -51,12 +53,6 @@ def zero(_1, _2):
     return torch.tensor(0.0)
 
 
-class WordVectorMessageAccuracy:
-    def __init__(self, w2v: pkg.wordvec.GloVe):
-        self.w2v = w2v
-
-    def __call__(self, pred: torch.Tensor, vec: pkg.wordvec.WordVector) -> torch.Tensor:
-        appro_pred = self.w2v.most_similar(pred)
-        vec_idx = vec.idx.to(pred.device)
-        return torch.sum(appro_pred.idx == vec_idx) / (vec_idx.shape[0] * 1.0)
-
+def word_message_accuracy(pred_idx: torch.Tensor, target_idx: torch.Tensor) -> torch.Tensor: 
+    target_idx = target_idx.to(pred_idx.device)
+    return torch.sum(pred_idx == target_idx) / (target_idx.shape[0] * 1.0)
