@@ -301,7 +301,7 @@ class WordHiddenCycle(HiddenCycle):
 
         self.optimizer.step()
 
-        appro_pred_msg = self.w2v.most_similar(pred_msg)
+        appro_pred_msg = self.w2v.most_similar(self.w2v.unserialize(pred_msg))
         acc_msg = pkg.metric.word_message_accuracy(appro_pred_msg.idx, item.msg().idx)
 
         return WordHiddenOutput(
@@ -340,7 +340,7 @@ class WordHiddenCycle(HiddenCycle):
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
-        appro_pred_msg = self.w2v.most_similar(pred_msg)
+        appro_pred_msg = self.w2v.most_similar(self.w2v.unserialize(pred_msg))
         acc_msg = pkg.metric.word_message_accuracy(appro_pred_msg.idx, item.msg().idx)
 
         return WordHiddenOutput(

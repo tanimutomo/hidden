@@ -55,4 +55,8 @@ def zero(_1, _2):
 
 def word_message_accuracy(pred_idx: torch.Tensor, target_idx: torch.Tensor) -> torch.Tensor: 
     target_idx = target_idx.to(pred_idx.device)
+    import ptdt
+    ptdt.tensor("pred_idx", pred_idx)
+    ptdt.tensor("target_idx", target_idx)
+    ptdt.tensor("equal sum", torch.sum(pred_idx == target_idx))
     return torch.sum(pred_idx == target_idx) / (target_idx.shape[0] * 1.0)

@@ -35,7 +35,7 @@ class BatchItem:
             self._msg = torch.stack([item.msg for item in list(items)], dim=0)
         else:
             self._msg = pkg.wordvec.WordVector(
-                idx=torch.stack([torch.tensor(item.msg.idx) for item in list(items)], dim=1),
+                idx=torch.stack([torch.tensor(item.msg.idx) for item in list(items)], dim=0),
                 vec=torch.stack([item.msg.vec for item in list(items)], dim=0),
             )
 
