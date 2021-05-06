@@ -102,17 +102,15 @@ class WordMessageDataset(_Base):
         """
         Args:
             root_dir (string): Directory with all the images.
-            num_words (int): Number of words are embedded to image.
             word_vec (tensor): Word embedding vector.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
         super().__init__(root_dir, img_transform=img_transform)
-        self.num_words = int(num_words)
         self.wvec = word_vec
 
     def _get_messages(self) -> pkg.wordvec.Pair:
-        return self.wvec.get_with_random(self.num_words)
+        return self.wvec.get_with_random()
 
     def _construct_item(self, img, msg) -> Item:
         return Item(img=img, msg=msg, _w2v=self.wvec)

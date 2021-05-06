@@ -16,6 +16,7 @@ class Pair:
 @dataclass
 class GloVe:
     use_words: int
+    num_words: int
     name: str ="6B"
     dim: int =50
     
@@ -27,8 +28,8 @@ class GloVe:
         self._key = np.array(glove.itos)[idxs]
         self._vec = glove.vectors[idxs]
 
-    def get_with_random(self, num_words: int) -> Pair:
-        idxs = random.sample(range(0, self._vec.shape[0]), num_words)
+    def get_with_random(self) -> Pair:
+        idxs = random.sample(range(0, self._vec.shape[0]), self.num_words)
         return Pair(idx=idxs, vec=self._vec[idxs])
 
     def most_similar(self, x: torch.FloatTensor) -> Pair:
@@ -44,9 +45,9 @@ class GloVe:
         return x.view(*x.shape[:-2], -1)
 
     def unserialize(self, x: torch.FloatTensor) -> torch.FloatTensor:
-        if x.shape[-1] % self.dim != 0 and x.shape[-1] / self.dim == self.use_words:
+        if x.shape[-1] % self.dim != 0 and (x.shape[-1] / self.dim) == self.num_words:
             raise TypeError
-        return x.view(*x.shape[:-1], self.use_words, self.dim)
+        return x.view(*x.shape[:-1], self.num_words, self.dim)
 
     def get_keys(self, idxs: typing.List[int]) -> typing.List[str]:
         return self._key[idxs].tolist()
