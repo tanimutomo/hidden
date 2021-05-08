@@ -4,6 +4,7 @@
 .PHONY: debug debug-mac train-identity train-dropout train-cropout train-crop train-gausian train-jpegdrop train-jpegmask train-combined test
 
 dataset := bit
+gpu_ids := [0,1]
 
 download:
 	wget http://images.cocodataset.org/zips/train2014.zip
@@ -17,7 +18,6 @@ download:
 
 debug: train_dis = jpeg_drop
 debug: test_dis = jpeg
-debug: gpu_ids = [0,1]
 debug:
 	poetry run python cmd/train.py config/experiment@experiment=debug config/distortion@train_distortion=$(train_dis) config/distortion@test_distortion=$(test_dis) training.epochs=1 training.test_interval=1 gpu_ids=$(gpu_ids) config/dataset@dataset=$(dataset)
 
@@ -33,7 +33,8 @@ train-identity:
 		experiment.prefix=$(dataset)_identity \
 		config/distortion@train_distortion=identity \
 		config/distortion@test_distortion=identity \
-		config/dataset@dataset=$(dataset)
+		config/dataset@dataset=$(dataset) \
+		gpu_ids=$(gpu_ids)
 
 train-dropout: p := 0.3
 train-dropout:
@@ -45,7 +46,8 @@ train-dropout:
 		config/distortion@test_distortion=dropout \
 		train_distortion.probability=$(p) \
 		test_distortion.probability=$(p) \
-		config/dataset@dataset=$(dataset)
+		config/dataset@dataset=$(dataset) \
+		gpu_ids=$(gpu_ids)
 
 train-cropout: p := 0.3
 train-cropout:
@@ -57,7 +59,8 @@ train-cropout:
 		config/distortion@test_distortion=cropout \
 		train_distortion.probability=$(p) \
 		test_distortion.probability=$(p) \
-		config/dataset@dataset=$(dataset)
+		config/dataset@dataset=$(dataset) \
+		gpu_ids=$(gpu_ids)
 
 train-crop: p := 0.035
 train-crop:
@@ -69,7 +72,8 @@ train-crop:
 		config/distortion@test_distortion=crop \
 		train_distortion.probability=$(p) \
 		test_distortion.probability=$(p) \
-		config/dataset@dataset=$(dataset)
+		config/dataset@dataset=$(dataset) \
+		gpu_ids=$(gpu_ids)
 
 train-gaussian: sigma := 2.0
 train-gaussian:
@@ -81,7 +85,8 @@ train-gaussian:
 		config/distortion@test_distortion=gaussian_blur \
 		train_distortion.sigma=$(sigma) \
 		test_distortion.sigma=$(sigma) \
-		config/dataset@dataset=$(dataset)
+		config/dataset@dataset=$(dataset) \
+		gpu_ids=$(gpu_ids)
 
 train-jpegdrop:
 	poetry run python cmd/train.py \
@@ -90,7 +95,8 @@ train-jpegdrop:
 		experiment.prefix=$(dataset)_jpeg_drop \
 		config/distortion@train_distortion=jpeg_drop \
 		config/distortion@test_distortion=jpeg \
-		config/dataset@dataset=$(dataset)
+		config/dataset@dataset=$(dataset) \
+		gpu_ids=$(gpu_ids)
 
 train-jpegmask:
 	poetry run python cmd/train.py \
@@ -99,7 +105,8 @@ train-jpegmask:
 		experiment.prefix=$(dataset)_jpeg_mask \
 		config/distortion@train_distortion=jpeg_mask \
 		config/distortion@test_distortion=jpeg \
-		config/dataset@dataset=$(dataset)
+		config/dataset@dataset=$(dataset) \
+		gpu_ids=$(gpu_ids)
 
 train-combined: test_dis = jpeg
 train-combined:
@@ -109,7 +116,8 @@ train-combined:
 		experiment.prefix=$(dataset)_combined \
 		config/distortion@train_distortion=combined \
 		config/distortion@test_distortion=$(test_dis) \
-		config/dataset@dataset=$(dataset)
+		config/dataset@dataset=$(dataset) \
+		gpu_ids=$(gpu_ids)
 
 test: dis :=
 test: train_dis :=
@@ -121,4 +129,5 @@ test:
 		experiment.prefix=$(dataset)_test_$(train_dis)_for_$(dis) \
 		experiment.model_path=.log/train/$(train_exp)/parameters.pth \
 		config/distortion@distortion=$(dis) \
-		config/dataset@dataset=$(dataset)
+		config/dataset@dataset=$(dataset) \
+		gpu_ids=$(gpu_ids)
