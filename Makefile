@@ -5,6 +5,17 @@
 
 dataset := bit
 
+download:
+	cd $HOME/data
+	mkdir coco2014
+	cd coco2014
+	wget http://images.cocodataset.org/zips/train2014.zip
+	unzip train2014.zip
+	mv train2014 train
+	wget http://images.cocodataset.org/zips/test2014.zip
+	unzip test2014.zip
+	mv test2014 test
+
 debug: train_dis = jpeg_drop
 debug: test_dis = jpeg
 debug: gpu_ids = [0,1]
