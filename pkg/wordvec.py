@@ -39,7 +39,7 @@ class GloVe:
             raise TypeError
         vec = self._vec.to(x.device)
         idx = torch.argmin(torch.norm(vec - x.unsqueeze(-2), dim=-1), dim=-1)
-        return Pair(idx=idx, vec=self._vec[idx])
+        return Pair(idx=idx.cpu(), vec=self._vec[idx])
     
     def serialize(self, x: torch.FloatTensor) -> torch.FloatTensor:
         if x.ndim < 2 or x.shape[-1] != self.dim:

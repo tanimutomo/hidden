@@ -1,6 +1,6 @@
 # @package dataset
 
 name: word
-num_words: 1
+num_words: 3
 dim: 50
 use_words: 1000
