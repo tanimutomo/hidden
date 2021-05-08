@@ -21,7 +21,7 @@ data:
   test_path: ${data.root}/coco2014/test
 
 training:
-  epochs: 150
+  epochs: 200
   test_interval: 5
   lr_scheduler_milestones: [100]
   lr_scheduler_step_factor: 0.1
