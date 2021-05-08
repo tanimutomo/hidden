@@ -68,6 +68,6 @@ def word_accuracy(pred_idx: torch.Tensor, target_idx: torch.Tensor) -> torch.Ten
 
 def word_message_accuracy(pred_idx: torch.Tensor, target_idx: torch.Tensor) -> torch.Tensor: 
     target_idx = target_idx.to(pred_idx.device)
-    corr = torch.sum(pred_idx == target_idx, dim=1) == torch.ones((target_idx.shape[0],)) * 3.0
+    corr = torch.sum(pred_idx == target_idx, dim=1) == torch.sum(torch.ones_like(target_idx), dim=1)
     return torch.sum(corr) / (target_idx.shape[0]* 1.0)
 
