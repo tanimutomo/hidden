@@ -293,7 +293,7 @@ class WordHiddenCycle(HiddenCycle):
         self.model.zero_grad()
 
         err_g = pkg.metric.adversarial_generator_loss(self.discriminator, enc_img, self.device)
-        err_msg = pkg.metric.message_loss(pred_msg, msg)
+        err_msg = pkg.metric.word_message_loss(pred_msg, msg, self.w2v.dim)
         err_rec = pkg.metric.reconstruction_loss(enc_img, img)
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
@@ -335,7 +335,7 @@ class WordHiddenCycle(HiddenCycle):
         err_d_fake = pkg.metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
 
         err_g = pkg.metric.adversarial_generator_loss(self.discriminator, enc_img, self.device)
-        err_msg = pkg.metric.message_loss(pred_msg, msg)
+        err_msg = pkg.metric.word_message_loss(pred_msg, msg, self.w2v.dim)
         err_rec = pkg.metric.reconstruction_loss(enc_img, img)
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g

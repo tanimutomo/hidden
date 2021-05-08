@@ -14,6 +14,14 @@ def message_loss(pred_msg, msg):
     return F.mse_loss(pred_msg, msg)
 
 
+def word_message_loss(pred_msg, msg, dim):
+    assert msg.shape[-1] % dim == 0
+    loss = 0.0
+    for i in range(msg.shape[-1]//dim):
+        loss += F.mse_loss(pred_msg[:, i:i+dim], msg[:, i:i+dim])
+    return loss
+
+
 def reconstruction_loss(pred_img, img):
     return F.mse_loss(pred_img, img)
 
