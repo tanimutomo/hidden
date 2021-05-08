@@ -7,6 +7,8 @@ import torch
 import torchtext
 
 
+CACHE_DIR="../../../.vector_cache"
+
 @dataclass
 class Pair:
     idx: typing.List[int]
@@ -21,7 +23,7 @@ class GloVe:
     dim: int =50
     
     def __post_init__(self):
-        glove = torchtext.vocab.GloVe(name=self.name, dim=self.dim)
+        glove = torchtext.vocab.GloVe(name=self.name, dim=self.dim, cache=CACHE_DIR)
         if self.use_words > len(glove.itos):
             raise TypeError("cannot use words more than base vector")
         idxs = random.sample(range(0, len(glove.itos)), self.use_words)
