@@ -115,9 +115,9 @@ def log_images(imgs: Images, transformer=None):
             _comet.log_image(path, step=_epoch)
 
 
-def log_texts(texts: typing.Dict[str, str]):
+def log_texts(texts: typing.Dict[str, typing.List[str]]):
     for key, text in texts.items():
-        text = f"{_mode}_{key} = ({text})"
+        text = f"{_mode}_{key} = ({','.join(text)})"
         if _comet:
             _comet.log_text(text, step=_epoch)
 

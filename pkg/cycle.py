@@ -319,8 +319,8 @@ class WordHiddenCycle(HiddenCycle):
                 noised=nos_img[0].cpu().detach(),
             ),
             text=WordHiddenTextOutput(
-                input=",".join(self.w2v.get_keys(item.msg().idx[0])),
-                predicted=",".join(self.w2v.get_keys(appro_pred_msg.idx[0]))
+                input=self.w2v.get_keys(item.msg().idx[0]),
+                predicted=self.w2v.get_keys(appro_pred_msg.idx[0]),
             )
         )
 
@@ -358,8 +358,8 @@ class WordHiddenCycle(HiddenCycle):
                 noised=nos_img[0].cpu().detach(),
             ),
             text=WordHiddenTextOutput(
-                input=",".join(self.w2v.get_keys(item.msg().idx[0])),
-                predicted=",".join(self.w2v.get_keys(appro_pred_msg.idx[0]))
+                input=self.w2v.get_keys(item.msg().idx[0]),
+                predicted=self.w2v.get_keys(appro_pred_msg.idx[0]),
             )
         )
 

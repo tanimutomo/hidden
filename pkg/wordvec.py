@@ -50,7 +50,8 @@ class GloVe:
         return x.view(*x.shape[:-1], self.num_words, self.dim)
 
     def get_keys(self, idxs: typing.List[int]) -> typing.List[str]:
-        return self._key[idxs].tolist()
+        keys = self._key[idxs]
+        return [keys] if isinstance(keys, str) else keys.tolist()
 
 
 @dataclass
