@@ -6,15 +6,14 @@
 dataset := bit
 
 download:
-	cd $HOME/data
-	mkdir coco2014
-	cd coco2014
 	wget http://images.cocodataset.org/zips/train2014.zip
-	unzip train2014.zip
-	mv train2014 train
 	wget http://images.cocodataset.org/zips/test2014.zip
+	unzip train2014.zip
 	unzip test2014.zip
-	mv test2014 test
+	mkdir coco2014
+	mv train2014 coco2014/train
+	mv test2014 coco2014/test
+	mv coco2014 ${HOME}/data
 
 debug: train_dis = jpeg_drop
 debug: test_dis = jpeg
