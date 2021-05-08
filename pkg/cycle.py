@@ -87,8 +87,8 @@ class WordHiddenMetricOutput:
     adversarial_generator_loss: float
     adversarial_discriminator_loss: float
     model_loss: float
-    message_accuracy: float
     word_accuracy: float
+    message_accuracy: float
 
     @classmethod
     def keys(cls) -> list:
@@ -313,8 +313,8 @@ class WordHiddenCycle(HiddenCycle):
                 adversarial_generator_loss=err_g.item(),
                 adversarial_discriminator_loss=err_d_real.item() + err_d_fake.item(),
                 model_loss=err_model.item(),
-                message_accuracy=acc_msg.item(),
                 word_accuracy=acc_wrd.item(),
+                message_accuracy=acc_msg.item(),
             ),
             image=HiddenImageOutput(
                 input=img[0].cpu().detach(),
@@ -354,8 +354,8 @@ class WordHiddenCycle(HiddenCycle):
                 adversarial_generator_loss=err_g.item(),
                 adversarial_discriminator_loss=err_d_real.item() + err_d_fake.item(),
                 model_loss=err_model.item(),
-                message_accuracy=acc_msg.item(),
                 word_accuracy=acc_wrd.item(),
+                message_accuracy=acc_msg.item(),
             ),
             image=HiddenImageOutput(
                 input=img[0].cpu().detach(),
