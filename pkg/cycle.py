@@ -88,6 +88,7 @@ class WordHiddenMetricOutput:
     adversarial_discriminator_loss: float
     model_loss: float
     message_accuracy: float
+    word_accuracy: float
 
     @classmethod
     def keys(cls) -> list:
@@ -303,6 +304,7 @@ class WordHiddenCycle(HiddenCycle):
 
         appro_pred_msg = self.w2v.most_similar(self.w2v.unserialize(pred_msg))
         acc_msg = pkg.metric.word_message_accuracy(appro_pred_msg.idx, item.msg().idx)
+        acc_wrd = pkg.metric.word_accuracy(appro_pred_msg.idx, item.msg().idx)
 
         return WordHiddenOutput(
             metric=WordHiddenMetricOutput(
@@ -312,6 +314,7 @@ class WordHiddenCycle(HiddenCycle):
                 adversarial_discriminator_loss=err_d_real.item() + err_d_fake.item(),
                 model_loss=err_model.item(),
                 message_accuracy=acc_msg.item(),
+                word_accuracy=acc_wrd.item(),
             ),
             image=HiddenImageOutput(
                 input=img[0].cpu().detach(),
@@ -342,6 +345,7 @@ class WordHiddenCycle(HiddenCycle):
 
         appro_pred_msg = self.w2v.most_similar(self.w2v.unserialize(pred_msg))
         acc_msg = pkg.metric.word_message_accuracy(appro_pred_msg.idx, item.msg().idx)
+        acc_wrd = pkg.metric.word_accuracy(appro_pred_msg.idx, item.msg().idx)
 
         return WordHiddenOutput(
             metric=WordHiddenMetricOutput(
@@ -351,6 +355,7 @@ class WordHiddenCycle(HiddenCycle):
                 adversarial_discriminator_loss=err_d_real.item() + err_d_fake.item(),
                 model_loss=err_model.item(),
                 message_accuracy=acc_msg.item(),
+                word_accuracy=acc_wrd.item(),
             ),
             image=HiddenImageOutput(
                 input=img[0].cpu().detach(),
