@@ -18,7 +18,8 @@ def word_message_loss(pred_msg, msg, dim):
     assert msg.shape[-1] % dim == 0
     loss = 0.0
     for i in range(msg.shape[-1]//dim):
-        loss += F.mse_loss(pred_msg[:, i:i+dim], msg[:, i:i+dim])
+        s, e = i*dim, i*(dim+1)
+        loss += F.mse_loss(pred_msg[:, s:e], msg[:, s:e])
     return loss
 
 
