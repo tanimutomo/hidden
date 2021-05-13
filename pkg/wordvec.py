@@ -8,6 +8,9 @@ import torchtext
 
 
 CACHE_DIR="../../../.vector_cache"
+VECTOR_MEAN = 0.0209
+VECTOR_STD = 0.6441
+
 
 @dataclass
 class Pair:
@@ -28,7 +31,7 @@ class GloVe:
             raise TypeError("cannot use words more than base vector")
         idxs = random.sample(range(0, len(glove.itos)), self.use_words)
         self._key = np.array(glove.itos)[idxs]
-        self._vec = glove.vectors[idxs]
+        self._vec = normalize(glove.vectors[idxs])
 
     def get_with_random(self) -> Pair:
         idxs = random.sample(range(0, self._vec.shape[0]), self.num_words)
@@ -54,6 +57,10 @@ class GloVe:
     def get_keys(self, idxs: typing.List[int]) -> typing.List[str]:
         keys = self._key[idxs]
         return [keys] if isinstance(keys, str) else keys.tolist()
+
+
+def normalize(vec: torch.Tensor) -> torch.Tensor:
+    return (vec - VECTOR_MEAN) / VECTOR_STD
 
 
 @dataclass
