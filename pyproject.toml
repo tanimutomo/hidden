@@ -19,6 +19,11 @@ ptdt = "^0.1.2"
 distortion = "^0.1.26"
 
 [tool.poetry.dev-dependencies]
+ipykernel = "^5.5.4"
+plotly = "4.14.3"
+pandas = "^1.2.4"
+nbformat = "^5.1.3"
+scikit-learn = "^0.24.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

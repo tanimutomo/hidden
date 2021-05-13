@@ -134,3 +134,4 @@ dmypy.json
 .log
 .vector_cache
 pkg_test/
+notebook/
