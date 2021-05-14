@@ -2,5 +2,5 @@
 
 name: word
 num_words: 3
-dim: 50
+dim: 30
 use_words: 1000
