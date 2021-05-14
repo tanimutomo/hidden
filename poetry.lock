@@ -305,7 +305,7 @@ testing = ["Django (<3.1)", "colorama", "docopt", "pytest (<6.0.0)"]
 name = "joblib"
 version = "1.0.1"
 description = "Lightweight pipelining with Python functions"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -695,7 +695,7 @@ six = ">=1.7.0"
 name = "scikit-learn"
 version = "0.24.2"
 description = "A set of python modules for machine learning and data mining"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -715,7 +715,7 @@ tests = ["matplotlib (>=2.1.1)", "scikit-image (>=0.13)", "pandas (>=0.25.0)", "
 name = "scipy"
 version = "1.6.1"
 description = "SciPy: Scientific Library for Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -742,7 +742,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 name = "threadpoolctl"
 version = "2.1.0"
 description = "threadpoolctl"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 
@@ -904,7 +904,7 @@ python-versions = ">=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "19d500424d2a9b4235563e364110056a817972f0ab65b385f8d26c47bf278bea"
+content-hash = "e7f5dc8e086df1e370df95902267bc724e4cb575d523034c753d67a914fe3e29"
 
 [metadata.files]
 antlr4-python3-runtime = [
