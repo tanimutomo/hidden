@@ -3,6 +3,7 @@ import random
 import typing
 
 import numpy as np
+from sklearn.decomposition import PCA
 import torch
 import torchtext
 
@@ -22,16 +23,17 @@ class Pair:
 class GloVe:
     use_words: int
     num_words: int
-    name: str ="6B"
-    dim: int =50
+    dim: int
+    glove_type: str ="6B"
+    glove_dim: int =50
     
     def __post_init__(self):
-        glove = torchtext.vocab.GloVe(name=self.name, dim=self.dim, cache=CACHE_DIR)
+        glove = torchtext.vocab.GloVe(name=self.glove_type, dim=self.glove_dim, cache=CACHE_DIR)
         if self.use_words > len(glove.itos):
             raise TypeError("cannot use words more than base vector")
         idxs = random.sample(range(0, len(glove.itos)), self.use_words)
         self._key = np.array(glove.itos)[idxs]
-        self._vec = normalize(glove.vectors[idxs])
+        self._vec = normalize(pca(glove.vectors[idxs], self.dim))
 
     def get_with_random(self) -> Pair:
         idxs = random.sample(range(0, self._vec.shape[0]), self.num_words)
@@ -60,7 +62,13 @@ class GloVe:
 
 
 def normalize(vec: torch.Tensor) -> torch.Tensor:
-    return (vec - VECTOR_MEAN) / VECTOR_STD
+    return (vec - vec.mean()) / vec.std()
+
+
+def pca(vec: torch.Tensor, dim: int) -> torch.Tensor:
+    pca = PCA(n_components=dim, svd_solver="full")
+    vec_np = pca.fit_transform(vec.numpy())
+    return torch.from_numpy(vec_np)
 
 
 @dataclass
