@@ -5,6 +5,7 @@
 
 dataset := bit
 gpu_ids := [0,1]
+suffix := default
 
 download:
 	wget http://images.cocodataset.org/zips/train2014.zip
@@ -30,7 +31,7 @@ train-identity:
 	poetry run python cmd/train.py \
 		experiment.tags=[distortion:identity,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=$(dataset)_identity \
+		experiment.prefix=$(dataset)_identity_$(suffix) \
 		config/distortion@train_distortion=identity \
 		config/distortion@test_distortion=identity \
 		config/dataset@dataset=$(dataset) \
@@ -41,7 +42,7 @@ train-dropout:
 	poetry run python cmd/train.py \
 		experiment.tags=[distortion:dropout,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=$(dataset)_dropout_p:$(p) \
+		experiment.prefix=$(dataset)_dropout_p:$(p)_$(suffix) \
 		config/distortion@train_distortion=dropout \
 		config/distortion@test_distortion=dropout \
 		train_distortion.probability=$(p) \
@@ -80,7 +81,7 @@ train-gaussian:
 	poetry run python cmd/train.py \
 		experiment.tags=[distortion:gaussian,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=$(dataset)_gaussian_sigma:$(sigma) \
+		experiment.prefix=$(dataset)_gaussian_sigma:$(sigma)_$(suffix) \
 		config/distortion@train_distortion=gaussian_blur \
 		config/distortion@test_distortion=gaussian_blur \
 		train_distortion.sigma=$(sigma) \
@@ -92,7 +93,7 @@ train-jpegdrop:
 	poetry run python cmd/train.py \
 		experiment.tags=[distortion:jpeg_drop,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=$(dataset)_jpeg_drop \
+		experiment.prefix=$(dataset)_jpeg_drop_$(suffix) \
 		config/distortion@train_distortion=jpeg_drop \
 		config/distortion@test_distortion=jpeg \
 		config/dataset@dataset=$(dataset) \
@@ -102,7 +103,7 @@ train-jpegmask:
 	poetry run python cmd/train.py \
 		experiment.tags=[distortion:jpeg_mask,dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=$(dataset)_jpeg_mask \
+		experiment.prefix=$(dataset)_jpeg_mask_$(suffix) \
 		config/distortion@train_distortion=jpeg_mask \
 		config/distortion@test_distortion=jpeg \
 		config/dataset@dataset=$(dataset) \
@@ -126,7 +127,7 @@ test:
 	poetry run python cmd/test.py \
 		experiment.tags=[distortion:$(dis),dataset:$(dataset)] \
 		experiment.use_comet=true \
-		experiment.prefix=$(dataset)_test_$(train_dis)_for_$(dis) \
+		experiment.prefix=$(dataset)_test_$(train_dis)_for_$(dis)_$(suffix) \
 		experiment.model_path=.log/train/$(train_exp)/parameters.pth \
 		config/distortion@distortion=$(dis) \
 		config/dataset@dataset=$(dataset) \
