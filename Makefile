@@ -54,7 +54,7 @@ train-cropout: p := 0.3
 train-cropout:
 	poetry run python cmd/train.py \
 		experiment.tags=[distortion:cropout,dataset:$(dataset)] \
-		expeciment.use_comet=true \
+		experiment.use_comet=true \
 		experiment.prefix=$(dataset)_cropout_p:$(p) \
 		config/distortion@train_distortion=cropout \
 		config/distortion@test_distortion=cropout \
