@@ -41,6 +41,7 @@ def main(cfg):
                     api_key=os.environ["COMET_API_KEY"],
                 ),
             ),
+            epochs=cfg.training.epochs,
         )
     elif cfg.experiment.mode == "resume":
         pkg.experiment.resume_init(
@@ -52,8 +53,9 @@ def main(cfg):
                     project=os.environ["COMET_PROJECT"],
                     workspace=os.environ["COMET_WORKSPACE"],
                     api_key=os.environ["COMET_API_KEY"],
-                )
-            )
+                ),
+            ),
+            epochs=cfg.training.epochs,
         )
     else:
         raise ValueError()
@@ -95,7 +97,7 @@ def main(cfg):
 
     last_epoch = 0
     ckpt = None
-    if cfg.experiment.resume_training:
+    if cfg.experiment.mode == "resume":
         last_epoch, ckpt = pkg.experiment.get_checkpoint()
 
     pkg.distorter.init(datastats.means(), datastats.stds())

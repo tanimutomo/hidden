@@ -84,7 +84,7 @@ def resume_init(cfg: ResumeConfig, epochs: int):
 
     if not os.path.exists("train.log"):
         raise ValueError(f"The specified experiment is seems to be a new experiment.")
-    if cfg.use_comet and not cfg.key:
+    if cfg.use_comet and not cfg.comet_key:
         raise ValueError(f"cfg.comet.resume_experiment_key is empty.")
 
     if not cfg.use_comet:
@@ -99,7 +99,7 @@ def resume_init(cfg: ResumeConfig, epochs: int):
         auto_metric_logging=False,
         parse_args=False
     )
-    exp_args["previous_experiment"] = cfg.comet_exp_key
+    exp_args["previous_experiment"] = cfg.comet_key
     _comet = comet_ml.ExistingExperiment(**exp_args)
 
     print(f"Resume the existing experiment: {cfg.name}")
