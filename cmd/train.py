@@ -27,9 +27,9 @@ def main(cfg):
     validate_config(cfg)
     if cfg.seed: pkg.seed.set_seed(cfg.seed)
 
-    if cfg.experiment.name == "debug":
+    if cfg.experiment.mode == "debug":
         pkg.experiment.debug_init(epochs=cfg.training.epochs)
-    elif cfg.experiment.name == "new":
+    elif cfg.experiment.mode == "new":
         pkg.experiment.new_init(
             cfg=pkg.experiment.NewConfig(
                 name=cfg.experiment.name,
@@ -42,7 +42,7 @@ def main(cfg):
                 ),
             ),
         )
-    elif cfg.experiment.name == "resume":
+    elif cfg.experiment.mode == "resume":
         pkg.experiment.resume_init(
             cfg=pkg.experiment.ResumeConfig(
                 name=cfg.experiment.name,
