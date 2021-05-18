@@ -5,7 +5,7 @@ hydra:
 mode: train
 
 defaults:
-  - config/experiment@experiment: default
+  - config/experiment@experiment: new
   - config/distortion@train_distortion: identity
   - config/distortion@test_distortion: identity
   - config/dataset@dataset: bit
@@ -25,13 +25,6 @@ training:
   test_interval: 5
   lr_scheduler_milestones: [100]
   lr_scheduler_step_factor: 0.1
-
-experiment:
-  tags: null
-  resume_training: False
-  use_comet: False
-  comet:
-    resume_experiment_key: null
 
 train:
   optimizer_lr: 1e-3
