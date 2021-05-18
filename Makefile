@@ -56,7 +56,7 @@ train-cropout:
 		experiment.tags=[distortion:cropout,dataset:$(dataset)] \
 		expeciment.use_comet=true \
 		experiment.prefix=$(dataset)_cropout_p:$(p) \
-		config/distortion@train_distortion=cropout aa\
+		config/distortion@train_distortion=cropout \
 		config/distortion@test_distortion=cropout \
 		train_distortion.probability=$(p) \
 		test_distortion.probability=$(p) \
