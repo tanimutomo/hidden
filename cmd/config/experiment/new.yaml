@@ -3,3 +3,5 @@
 mode: new
 prefix: null
 name: ${experiment.prefix}_${now:%Y-%m%d-%H%M-%S}
+tags: null
+use_comet: False

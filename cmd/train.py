@@ -27,21 +27,38 @@ def main(cfg):
     validate_config(cfg)
     if cfg.seed: pkg.seed.set_seed(cfg.seed)
 
-    pkg.experiment.init(
-        cfg=pkg.experiment.Config(
-            name=cfg.experiment.name,
-            tags=cfg.experiment.tags,
-            use_comet=cfg.experiment.use_comet,
-            resume_training=cfg.experiment.resume_training,
-            comet=pkg.experiment.CometConfig(
-                project=os.environ["COMET_PROJECT"],
-                workspace=os.environ["COMET_WORKSPACE"],
-                api_key=os.environ["COMET_API_KEY"],
-                resume_experiment_key=cfg.experiment.comet.resume_experiment_key,
-            )
-        ),
-        epochs=cfg.training.epochs,
-    )
+    if cfg.experiment.mode == "debug":
+        pkg.experiment.debug_init(epochs=cfg.training.epochs)
+    elif cfg.experiment.mode == "new":
+        pkg.experiment.new_init(
+            cfg=pkg.experiment.NewConfig(
+                name=cfg.experiment.name,
+                tags=cfg.experiment.tags,
+                use_comet=cfg.experiment.use_comet,
+                comet=pkg.experiment.CometConfig(
+                    project=os.environ["COMET_PROJECT"],
+                    workspace=os.environ["COMET_WORKSPACE"],
+                    api_key=os.environ["COMET_API_KEY"],
+                ),
+            ),
+            epochs=cfg.training.epochs,
+        )
+    elif cfg.experiment.mode == "resume":
+        pkg.experiment.resume_init(
+            cfg=pkg.experiment.ResumeConfig(
+                name=cfg.experiment.name,
+                use_comet=cfg.experiment.use_comet,
+                comet_key=cfg.experiment.comet_key,
+                comet=pkg.experiment.CometConfig(
+                    project=os.environ["COMET_PROJECT"],
+                    workspace=os.environ["COMET_WORKSPACE"],
+                    api_key=os.environ["COMET_API_KEY"],
+                ),
+            ),
+            epochs=cfg.training.epochs,
+        )
+    else:
+        raise ValueError()
     pkg.experiment.log_hyper_parameters(omegaconf.OmegaConf.to_container(cfg))
 
     device = torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu")
@@ -80,7 +97,7 @@ def main(cfg):
 
     last_epoch = 0
     ckpt = None
-    if cfg.experiment.resume_training:
+    if cfg.experiment.mode == "resume":
         last_epoch, ckpt = pkg.experiment.get_checkpoint()
 
     pkg.distorter.init(datastats.means(), datastats.stds())

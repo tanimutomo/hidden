@@ -22,57 +22,87 @@ class CometConfig:
     project: str
     workspace: str
     api_key: str
-    resume_experiment_key: str =""
 
 @dataclass
-class Config:
+class NewConfig:
     name: str
     tags: typing.Dict[str, str]
     comet: CometConfig
-    use_comet: bool =False
-    resume_training: bool =False
+    use_comet: bool = False
+
+@dataclass
+class ResumeConfig:
+    name: str
+    comet: CometConfig
+    use_comet: bool = False
+    comet_key: str = ""
+    
 
 CHECKPOINT_PATH = "checkpoint.pth"
 PARAMETERS_PATH = "parameters.pth"
 
 _comet: comet_ml.Experiment = None
-_cfg: Config = None
 _epoch: int = 0
 _epochs: int = 0
 _mode: str = ""
 
 
-def init(cfg: Config, epochs: int):
-    global _cfg, _comet, _epochs
-    _cfg = cfg
+def debug_init(epochs: int):
+    global  _epochs
+    _epochs = epochs
+    print(f"Start a debug experiment")
+
+
+def new_init(cfg: NewConfig, epochs: int):
+    global _comet, _epochs
     _epochs = epochs
 
-    if _cfg.resume_training:
-        if not os.path.exists("train.log"):
-            raise ValueError(f"The specified experiment is seems to be a new experiment.")
-        if _cfg.use_comet and not _cfg.comet.resume_experiment_key:
-            raise ValueError(f"cfg.comet.resume_experiment_key is empty.")
+    if not cfg.use_comet:
+        print(f"Start experiment: {cfg.name}")
+        return
 
-    if _cfg.use_comet:
-        exp_args = dict(
-            project_name=_cfg.comet.project,
-            workspace=_cfg.comet.workspace,
-            api_key=_cfg.comet.api_key,
-            auto_param_logging=False,
-            auto_metric_logging=False,
-            parse_args=False
-        )
-        if _cfg.comet.resume_experiment_key:
-            exp_args["previous_experiment"] = _cfg.comet.resume_experiment_key
-            _comet = comet_ml.ExistingExperiment(**exp_args)
-        else:
-            _comet = comet_ml.Experiment(**exp_args)
-            _comet.set_name(_cfg.name)
+    exp_args = dict(
+        project_name=cfg.comet.project,
+        workspace=cfg.comet.workspace,
+        api_key=cfg.comet.api_key,
+        auto_param_logging=False,
+        auto_metric_logging=False,
+        parse_args=False
+    )
+    _comet = comet_ml.Experiment(**exp_args)
+    _comet.set_name(cfg.name)
 
-        if _cfg.tags:
-            _comet.add_tags(_cfg.tags)
+    if cfg.tags:
+        _comet.add_tags(cfg.tags)
 
-    print(f"Start experiment: {_cfg.name}")
+    print(f"Start a new experiment: {cfg.name}")
+
+
+def resume_init(cfg: ResumeConfig, epochs: int):
+    global _comet, _epochs
+    _epochs = epochs
+
+    if not os.path.exists("train.log"):
+        raise ValueError(f"The specified experiment is seems to be a new experiment.")
+    if cfg.use_comet and not cfg.comet_key:
+        raise ValueError(f"cfg.comet.resume_experiment_key is empty.")
+
+    if not cfg.use_comet:
+        print(f"Resume the existing experiment: {cfg.name}")
+        return
+
+    exp_args = dict(
+        project_name=cfg.comet.project,
+        workspace=cfg.comet.workspace,
+        api_key=cfg.comet.api_key,
+        auto_param_logging=False,
+        auto_metric_logging=False,
+        parse_args=False
+    )
+    exp_args["previous_experiment"] = cfg.comet_key
+    _comet = comet_ml.ExistingExperiment(**exp_args)
+
+    print(f"Resume the existing experiment: {cfg.name}")
 
 
 def set_epoch(epoch: int):
@@ -86,7 +116,7 @@ def set_mode(mode: str):
 
 
 def log_hyper_parameters(params: dict):
-    if _cfg.use_comet:
+    if _comet:
         _comet.log_parameters(_to_flat_dict(params, dict()))
 
 
@@ -136,8 +166,6 @@ def log_parameters(params: dict):
 
 
 def get_checkpoint()-> typing.Tuple[int, dict]:
-    if not _cfg.resume_training:
-        raise ValueError("This training is new experiment.")
     ckpt = torch.load(CHECKPOINT_PATH, map_location="cpu")
     shutil.copy(CHECKPOINT_PATH, CHECKPOINT_PATH+f".bkup.{moment.now().format('YYYY-MMDD-HHmm-ss')}")
     epoch = ckpt.pop("epoch")
