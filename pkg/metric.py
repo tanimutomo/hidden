@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import typing
 
 import kornia
@@ -13,9 +12,9 @@ REAL_LABEL = 1
 FAKE_LABEL = 0
 
 
-@dataclass
 class _Base:
-    imgtf: pkg.transform.ImageTransformer
+    def __init__(self, imgtf: pkg.transform.ImageTransformer):
+        self.imgtf = imgtf
 
     def reconstruction_loss(self, pred_img, img):
         return F.mse_loss(pred_img, img)
@@ -47,12 +46,9 @@ class _Base:
         kornia.losses.psnr(base[:, 2, ...], target[:, 2, ...], 1)
 
 
-@dataclass
 class BitMetrics(_Base):
-    imgtf: pkg.transform.ImageTransformer
-
-    def __post_init__(self):
-        super().__init__(self.imgtf)
+    def __init__(self, imgtf: pkg.transform.ImageTransformer):
+        super().__init__(imgtf)
 
     def message_loss(self, pred_msg, msg):
         return F.mse_loss(pred_msg, msg)
@@ -64,13 +60,10 @@ class BitMetrics(_Base):
         return 1 - (torch.sum(torch.clamp(_err_count(pred_msg, msg), 0, 1)) / msg.shape[0])
 
 
-@dataclass
 class WordMetrics(_Base):
-    w2v: pkg.wordvec.GloVe
-    imgtf: pkg.transform.ImageTransformer
-
-    def __post_init__(self):
-        super().__init__(self.imgtf)
+    def __init__(self, w2v: pkg.wordvec.GloVe, imgtf: pkg.transform.ImageTransformer):
+        self.w2v = w2v
+        super().__init__(imgtf)
 
     def message_loss(self, pred_msg, msg, dim):
         assert msg.shape[-1] % dim == 0

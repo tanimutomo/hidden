@@ -134,24 +134,24 @@ def main(cfg):
     )
 
     if cfg.dataset.name == "bit":
-        train_cycle = pkg.cycle.HiddenCycle(
-            loss_cfg=pkg.cycle.HiddenLossConfig(),
-            model=model,
+        train_cycle = pkg.cycle.BitCycle(
+            loss_cfg=pkg.cycle.LossConfig(),
             metrics=pkg.metric.BitMetrics(imgtf=imgtf),
+            model=model,
             device=device,
             gpu_ids=cfg.gpu_ids,
         )
     elif cfg.dataset.name == "word":
-        train_cycle = pkg.cycle.WordHiddenCycle(
-            loss_cfg=pkg.cycle.HiddenLossConfig(),
-            model=model,
+        train_cycle = pkg.cycle.WordCycle(
+            loss_cfg=pkg.cycle.LossConfig(),
             metrics=pkg.metric.WordMetrics(imgtf=imgtf, w2v=w2v),
             w2v=w2v,
+            model=model,
             device=device,
             gpu_ids=cfg.gpu_ids,
         )
     train_cycle.setup_train(
-        cfg=pkg.cycle.HiddenTrainConfig(
+        cfg=pkg.cycle.TrainConfig(
             optimizer_lr=cfg.train.optimizer_lr,
             optimizer_wd=cfg.train.optimizer_wd,
             discriminator_lr=cfg.train.discriminator_lr,
@@ -172,7 +172,7 @@ def main(cfg):
         trainer=train_cycle, 
         datactl=datactl,
         log=pkg.iterator.LogBitOutput(imgtf.save) if cfg.dataset.name == "bit" else pkg.iterator.LogWordOutput(imgtf.save),
-        metrics=pkg.cycle.HiddenMetricOutput.keys() if cfg.dataset.name == "bit" else pkg.cycle.WordHiddenMetricOutput.keys(),
+        metrics=pkg.cycle.BitMetricOutput.keys() if cfg.dataset.name == "bit" else pkg.cycle.WordMetricOutput.keys(),
     )
     print("End Training")
 

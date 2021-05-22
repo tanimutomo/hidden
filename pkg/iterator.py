@@ -91,7 +91,7 @@ class LogBitOutput:
     def __init__(self, img_transform=None):
         self.img_transform = img_transform
 
-    def __call__(self, output: pkg.cycle.HiddenOutput):
+    def __call__(self, output: pkg.cycle.BitOutput):
         pkg.experiment.log_metrics(output.metric.todict())
         pkg.experiment.log_images(output.image.todict(), transformer=self.img_transform)
 
@@ -100,7 +100,7 @@ class LogWordOutput:
     def __init__(self, img_transform=None):
         self.img_transform = img_transform
 
-    def __call__(self, output: pkg.cycle.WordHiddenOutput):
+    def __call__(self, output: pkg.cycle.WordOutput):
         pkg.experiment.log_metrics(output.metric.todict())
         pkg.experiment.log_images(output.image.todict(), transformer=self.img_transform)
         pkg.experiment.log_texts(output.text.todict())
