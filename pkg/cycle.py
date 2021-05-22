@@ -30,6 +30,9 @@ class BitMetricOutput:
     model_loss: float
     message_accuracy: float
     unit_message_accuracy: float
+    psnr_y: float
+    psnr_u: float
+    psnr_v: float
 
     @classmethod
     def keys(cls) -> list:
@@ -69,6 +72,9 @@ class WordMetricOutput:
     model_loss: float
     unit_message_accuracy: float
     message_accuracy: float
+    psnr_y: float
+    psnr_u: float
+    psnr_v: float
 
     @classmethod
     def keys(cls) -> list:
@@ -194,6 +200,10 @@ class BitCycle(Cycle):
         acc_msg = self.metrics.message_accuracy(pred_msg, msg)
         unit_acc_msg = self.metrics.unit_message_accuracy(pred_msg, msg)
 
+        psnr_y = self.metrics.psnr_y(img, enc_img)
+        psnr_u = self.metrics.psnr_u(img, enc_img)
+        psnr_v = self.metrics.psnr_v(img, enc_img)
+
         return BitOutput(
             metric=BitMetricOutput(
                 message_loss=err_msg.item(),
@@ -203,6 +213,9 @@ class BitCycle(Cycle):
                 model_loss=err_model.item(),
                 unit_message_accuracy=unit_acc_msg.item(),
                 message_accuracy=acc_msg.item(),
+                psnr_y=psnr_y.item(),
+                psnr_u=psnr_u.item(),
+                psnr_v=psnr_v.item(),
             ),
             image=ImageOutput(
                 input=img[0].cpu().detach(),
@@ -230,6 +243,10 @@ class BitCycle(Cycle):
         acc_msg = self.metrics.message_accuracy(pred_msg, msg)
         unit_acc_msg = self.metrics.unit_message_accuracy(pred_msg, msg)
 
+        psnr_y = self.metrics.psnr_y(img, enc_img)
+        psnr_u = self.metrics.psnr_u(img, enc_img)
+        psnr_v = self.metrics.psnr_v(img, enc_img)
+
         return BitOutput(
             metric=BitMetricOutput(
                 message_loss=err_msg.item(),
@@ -239,6 +256,9 @@ class BitCycle(Cycle):
                 model_loss=err_model.item(),
                 unit_message_accuracy=unit_acc_msg.item(),
                 message_accuracy=acc_msg.item(),
+                psnr_y=psnr_y.item(),
+                psnr_u=psnr_u.item(),
+                psnr_v=psnr_v.item(),
             ),
             image=ImageOutput(
                 input=img[0].cpu().detach(),
@@ -291,6 +311,10 @@ class WordCycle(Cycle):
         ipt_txt = self.w2v.get_keys(item.msg().idx[0])
         pred_txt = self.w2v.get_keys(self.w2v.most_similar(self.w2v.unserialize(pred_msg)).idx[0])
 
+        psnr_y = self.metrics.psnr_y(img, enc_img)
+        psnr_u = self.metrics.psnr_u(img, enc_img)
+        psnr_v = self.metrics.psnr_v(img, enc_img)
+
         return WordOutput(
             metric=WordMetricOutput(
                 message_loss=err_msg.item(),
@@ -300,6 +324,9 @@ class WordCycle(Cycle):
                 model_loss=err_model.item(),
                 unit_message_accuracy=unit_msg_acc.item(),
                 message_accuracy=msg_acc.item(),
+                psnr_y=psnr_y.item(),
+                psnr_u=psnr_u.item(),
+                psnr_v=psnr_v.item(),
             ),
             image=ImageOutput(
                 input=img[0].cpu().detach(),
@@ -334,6 +361,10 @@ class WordCycle(Cycle):
         ipt_txt = self.w2v.get_keys(item.msg().idx[0])
         pred_txt = self.w2v.get_keys(self.w2v.most_similar(self.w2v.unserialize(pred_msg)).idx[0])
 
+        psnr_y = self.metrics.psnr_y(img, enc_img)
+        psnr_u = self.metrics.psnr_u(img, enc_img)
+        psnr_v = self.metrics.psnr_v(img, enc_img)
+
         return WordOutput(
             metric=WordMetricOutput(
                 message_loss=err_msg.item(),
@@ -343,6 +374,9 @@ class WordCycle(Cycle):
                 model_loss=err_model.item(),
                 unit_message_accuracy=unit_msg_acc.item(),
                 message_accuracy=msg_acc.item(),
+                psnr_y=psnr_y.item(),
+                psnr_u=psnr_u.item(),
+                psnr_v=psnr_v.item(),
             ),
             image=ImageOutput(
                 input=img[0].cpu().detach(),
