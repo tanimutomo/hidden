@@ -17,6 +17,7 @@ import pkg.experiment
 import pkg.iterator
 import pkg.model
 import pkg.seed
+import pkg.transform
 
 
 dotenv.load_dotenv()
@@ -64,25 +65,30 @@ def main(cfg):
     device = torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu")
 
     datastats = pkg.dataset.COCODatasetStats()
+    transformers = pkg.transform.ImageTransformer(cfg.data.resol, dataset_stats=datastats)
     if cfg.dataset.name == "bit":
         w2v = None
         train_dataset = pkg.dataset.BitMessageDataset(
             root_dir=cfg.data.train_path,
             msg_len=cfg.dataset.msg_len,
+            img_transform=transformers.train,
         )
         test_dataset = pkg.dataset.BitMessageDataset(
             root_dir=cfg.data.test_path,
             msg_len=cfg.dataset.msg_len,
+            img_transform=transformers.test,
         )
     elif cfg.dataset.name == "word":
         w2v = pkg.wordvec.GloVe(use_words=cfg.dataset.use_words, num_words=cfg.dataset.num_words, dim=cfg.dataset.dim)
         train_dataset = pkg.dataset.WordMessageDataset(
             root_dir=cfg.data.train_path,
             word_vec=w2v,
+            img_transform=transformers.train,
         )
         test_dataset = pkg.dataset.WordMessageDataset(
             root_dir=cfg.data.test_path,
             word_vec=w2v,
+            img_transform=transformers.test,
         )
     else:
         raise NotImplementedError()
@@ -161,7 +167,7 @@ def main(cfg):
         ),
         trainer=train_cycle, 
         datactl=datactl,
-        log=pkg.iterator.log_bit_outputs if cfg.dataset.name == "bit" else pkg.iterator.log_word_outputs,
+        log=pkg.iterator.LogBitOutput(transformers.post_process) if cfg.dataset.name == "bit" else pkg.iterator.LogWordOutput(transformers.post_process),
         metrics=pkg.cycle.HiddenMetricOutput.keys() if cfg.dataset.name == "bit" else pkg.cycle.WordHiddenMetricOutput.keys(),
     )
     print("End Training")

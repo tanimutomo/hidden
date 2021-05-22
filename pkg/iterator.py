@@ -87,12 +87,20 @@ def test_iter(
     log(output)
 
 
-def log_bit_outputs(output: pkg.cycle.HiddenOutput):
-    pkg.experiment.log_metrics(output.metric.todict())
-    pkg.experiment.log_images(output.image.todict())
+class LogBitOutput:
+    def __init__(self, img_transform=None):
+        self.img_transform = img_transform
+
+    def __call__(self, output: pkg.cycle.HiddenOutput):
+        pkg.experiment.log_metrics(output.metric.todict())
+        pkg.experiment.log_images(output.image.todict(), transformer=self.img_transform)
 
 
-def log_word_outputs(output: pkg.cycle.WordHiddenOutput):
-    pkg.experiment.log_metrics(output.metric.todict())
-    pkg.experiment.log_images(output.image.todict())
-    pkg.experiment.log_texts(output.text.todict())
+class LogWordOutput:
+    def __init__(self, img_transform=None):
+        self.img_transform = img_transform
+
+    def __call__(self, output: pkg.cycle.WordHiddenOutput):
+        pkg.experiment.log_metrics(output.metric.todict())
+        pkg.experiment.log_images(output.image.todict(), transformer=self.img_transform)
+        pkg.experiment.log_texts(output.text.todict())
