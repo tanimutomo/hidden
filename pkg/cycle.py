@@ -49,7 +49,7 @@ class HiddenMetricOutput:
     adversarial_discriminator_loss: float
     model_loss: float
     message_accuracy: float
-    bit_message_accuracy: float
+    unit_message_accuracy: float
 
     @classmethod
     def keys(cls) -> list:
@@ -87,7 +87,7 @@ class WordHiddenMetricOutput:
     adversarial_generator_loss: float
     adversarial_discriminator_loss: float
     model_loss: float
-    word_accuracy: float
+    unit_message_accuracy: float
     message_accuracy: float
 
     @classmethod
@@ -109,6 +109,7 @@ class HiddenCycle(Cycle):
 
     loss_cfg: HiddenLossConfig
     model: pkg.model.HiddenModel
+    metrics: pkg.metric.BitMetrics
 
     device: torch.device
     gpu_ids: typing.List[int]
@@ -153,29 +154,29 @@ class HiddenCycle(Cycle):
 
         self.discriminator.zero_grad()
 
-        err_d_real = pkg.metric.adversarial_real_loss(self.discriminator, img, self.device)
+        err_d_real = self.metrics.adversarial_real_loss(self.discriminator, img, self.device)
         err_d_real.backward()
 
         enc_img, nos_img, pred_msg = self.model(img, msg)
 
-        err_d_fake = pkg.metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
+        err_d_fake = self.metrics.adversarial_fake_loss(self.discriminator, enc_img, self.device)
         err_d_fake.backward()
 
         self.discriminator_optimizer.step()
 
         self.model.zero_grad()
 
-        err_g = pkg.metric.adversarial_generator_loss(self.discriminator, enc_img, self.device)
-        err_msg = pkg.metric.message_loss(pred_msg, msg)
-        err_rec = pkg.metric.reconstruction_loss(enc_img, img)
+        err_g = self.metrics.adversarial_generator_loss(self.discriminator, enc_img, self.device)
+        err_msg = self.metrics.message_loss(pred_msg, msg)
+        err_rec = self.metrics.reconstruction_loss(enc_img, img)
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
         err_model.backward()
 
         self.optimizer.step()
 
-        acc_msg = pkg.metric.whole_message_accuracy(pred_msg, msg)
-        bit_acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
+        acc_msg = self.metrics.message_accuracy(pred_msg, msg)
+        unit_acc_msg = self.metrics.unit_message_accuracy(pred_msg, msg)
 
         return HiddenOutput(
             metric=HiddenMetricOutput(
@@ -184,7 +185,7 @@ class HiddenCycle(Cycle):
                 adversarial_generator_loss=err_g.item(),
                 adversarial_discriminator_loss=err_d_real.item() + err_d_fake.item(),
                 model_loss=err_model.item(),
-                bit_message_accuracy=bit_acc_msg.item(),
+                unit_message_accuracy=unit_acc_msg.item(),
                 message_accuracy=acc_msg.item(),
             ),
             image=HiddenImageOutput(
@@ -201,17 +202,17 @@ class HiddenCycle(Cycle):
         img, msg = item.img().to(self.device), item.msg_vec().to(self.device)
         enc_img, nos_img, pred_msg = self.model(img, msg)
 
-        err_d_real = pkg.metric.adversarial_real_loss(self.discriminator, img, self.device)
-        err_d_fake = pkg.metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
+        err_d_real = self.metrics.adversarial_real_loss(self.discriminator, img, self.device)
+        err_d_fake = self.metrics.adversarial_fake_loss(self.discriminator, enc_img, self.device)
 
-        err_g = pkg.metric.adversarial_generator_loss(self.discriminator, enc_img, self.device)
-        err_msg = pkg.metric.message_loss(pred_msg, msg)
-        err_rec = pkg.metric.reconstruction_loss(enc_img, img)
+        err_g = self.metrics.adversarial_generator_loss(self.discriminator, enc_img, self.device)
+        err_msg = self.metrics.message_loss(pred_msg, msg)
+        err_rec = self.metrics.reconstruction_loss(enc_img, img)
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
-        acc_msg = pkg.metric.whole_message_accuracy(pred_msg, msg)
-        bit_acc_msg = pkg.metric.message_accuracy(pred_msg, msg)
+        acc_msg = self.metrics.message_accuracy(pred_msg, msg)
+        unit_acc_msg = self.metrics.unit_message_accuracy(pred_msg, msg)
 
         return HiddenOutput(
             metric=HiddenMetricOutput(
@@ -220,7 +221,7 @@ class HiddenCycle(Cycle):
                 adversarial_generator_loss=err_g.item(),
                 adversarial_discriminator_loss=err_d_real.item() + err_d_fake.item(),
                 model_loss=err_model.item(),
-                bit_message_accuracy=bit_acc_msg.item(),
+                unit_message_accuracy=unit_acc_msg.item(),
                 message_accuracy=acc_msg.item(),
             ),
             image=HiddenImageOutput(
@@ -256,22 +257,15 @@ class HiddenCycle(Cycle):
 
 
 class WordHiddenCycle(HiddenCycle):
-
-    loss_cfg: HiddenLossConfig
-    model: pkg.model.HiddenModel
-    w2v: pkg.wordvec.GloVe
-
-    device: torch.device
-    gpu_ids: typing.List[int]
-
-    def __init__(self, loss_cfg, model, w2v, device, gpu_ids):
+    def __init__(self, loss_cfg, model, metrics, w2v, device, gpu_ids):
         self.loss_cfg = loss_cfg
         self.model = model
+        self.metrics = metrics
         self.w2v = w2v
         self.device = device
         self.gpu_ids = gpu_ids
 
-        super().__init__(self.loss_cfg, self.model, self.device, self.gpu_ids)
+        super().__init__(self.loss_cfg, self.model, self.metrics, self.device, self.gpu_ids)
 
     def train(self, item: pkg.dataset.BatchItem) -> WordHiddenOutput:
         self.discriminator.train()
@@ -281,30 +275,32 @@ class WordHiddenCycle(HiddenCycle):
 
         self.discriminator.zero_grad()
 
-        err_d_real = pkg.metric.adversarial_real_loss(self.discriminator, img, self.device)
+        err_d_real = self.metrics.adversarial_real_loss(self.discriminator, img, self.device)
         err_d_real.backward()
 
         enc_img, nos_img, pred_msg = self.model(img, msg)
 
-        err_d_fake = pkg.metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
+        err_d_fake = self.metrics.adversarial_fake_loss(self.discriminator, enc_img, self.device)
         err_d_fake.backward()
 
         self.discriminator_optimizer.step()
 
         self.model.zero_grad()
 
-        err_g = pkg.metric.adversarial_generator_loss(self.discriminator, enc_img, self.device)
-        err_msg = pkg.metric.word_message_loss(pred_msg, msg, self.w2v.dim)
-        err_rec = pkg.metric.reconstruction_loss(enc_img, img)
+        err_g = self.metrics.adversarial_generator_loss(self.discriminator, enc_img, self.device)
+        err_msg = self.metrics.message_loss(pred_msg, msg, self.w2v.dim)
+        err_rec = self.metrics.reconstruction_loss(enc_img, img)
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
         err_model.backward()
 
         self.optimizer.step()
 
-        appro_pred_msg = self.w2v.most_similar(self.w2v.unserialize(pred_msg))
-        acc_msg = pkg.metric.word_message_accuracy(appro_pred_msg.idx, item.msg().idx)
-        acc_wrd = pkg.metric.word_accuracy(appro_pred_msg.idx, item.msg().idx)
+        msg_acc = self.metrics.message_accuracy(pred_msg, item.msg())
+        unit_msg_acc = self.metrics.unit_message_accuracy(pred_msg, item.msg())
+
+        ipt_txt = self.w2v.get_keys(item.msg().idx[0])
+        pred_txt = self.w2v.get_keys(self.w2v.most_similar(self.w2v.unserialize(pred_msg)).idx[0])
 
         return WordHiddenOutput(
             metric=WordHiddenMetricOutput(
@@ -313,8 +309,8 @@ class WordHiddenCycle(HiddenCycle):
                 adversarial_generator_loss=err_g.item(),
                 adversarial_discriminator_loss=err_d_real.item() + err_d_fake.item(),
                 model_loss=err_model.item(),
-                word_accuracy=acc_wrd.item(),
-                message_accuracy=acc_msg.item(),
+                unit_message_accuracy=unit_msg_acc.item(),
+                message_accuracy=msg_acc.item(),
             ),
             image=HiddenImageOutput(
                 input=img[0].cpu().detach(),
@@ -322,8 +318,8 @@ class WordHiddenCycle(HiddenCycle):
                 noised=nos_img[0].cpu().detach(),
             ),
             text=WordHiddenTextOutput(
-                input=self.w2v.get_keys(item.msg().idx[0]),
-                predicted=self.w2v.get_keys(appro_pred_msg.idx[0]),
+                input=ipt_txt,
+                predicted=pred_txt,
             )
         )
 
@@ -334,18 +330,20 @@ class WordHiddenCycle(HiddenCycle):
         img, msg = item.img().to(self.device), item.msg_vec().to(self.device)
         enc_img, nos_img, pred_msg = self.model(img, msg)
 
-        err_d_real = pkg.metric.adversarial_real_loss(self.discriminator, img, self.device)
-        err_d_fake = pkg.metric.adversarial_fake_loss(self.discriminator, enc_img, self.device)
+        err_d_real = self.metrics.adversarial_real_loss(self.discriminator, img, self.device)
+        err_d_fake = self.metrics.adversarial_fake_loss(self.discriminator, enc_img, self.device)
 
-        err_g = pkg.metric.adversarial_generator_loss(self.discriminator, enc_img, self.device)
-        err_msg = pkg.metric.word_message_loss(pred_msg, msg, self.w2v.dim)
-        err_rec = pkg.metric.reconstruction_loss(enc_img, img)
+        err_g = self.metrics.adversarial_generator_loss(self.discriminator, enc_img, self.device)
+        err_msg = self.metrics.message_loss(pred_msg, msg, self.w2v.dim)
+        err_rec = self.metrics.reconstruction_loss(enc_img, img)
 
         err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
-        appro_pred_msg = self.w2v.most_similar(self.w2v.unserialize(pred_msg))
-        acc_msg = pkg.metric.word_message_accuracy(appro_pred_msg.idx, item.msg().idx)
-        acc_wrd = pkg.metric.word_accuracy(appro_pred_msg.idx, item.msg().idx)
+        msg_acc = self.metrics.message_accuracy(pred_msg, item.msg())
+        unit_msg_acc = self.metrics.unit_message_accuracy(pred_msg, item.msg())
+
+        ipt_txt = self.w2v.get_keys(item.msg().idx[0])
+        pred_txt = self.w2v.get_keys(self.w2v.most_similar(self.w2v.unserialize(pred_msg)).idx[0])
 
         return WordHiddenOutput(
             metric=WordHiddenMetricOutput(
@@ -354,8 +352,8 @@ class WordHiddenCycle(HiddenCycle):
                 adversarial_generator_loss=err_g.item(),
                 adversarial_discriminator_loss=err_d_real.item() + err_d_fake.item(),
                 model_loss=err_model.item(),
-                word_accuracy=acc_wrd.item(),
-                message_accuracy=acc_msg.item(),
+                unit_message_accuracy=unit_msg_acc.item(),
+                message_accuracy=msg_acc.item(),
             ),
             image=HiddenImageOutput(
                 input=img[0].cpu().detach(),
@@ -363,8 +361,8 @@ class WordHiddenCycle(HiddenCycle):
                 noised=nos_img[0].cpu().detach(),
             ),
             text=WordHiddenTextOutput(
-                input=self.w2v.get_keys(item.msg().idx[0]),
-                predicted=self.w2v.get_keys(appro_pred_msg.idx[0]),
+                input=ipt_txt,
+                predicted=pred_txt,
             )
         )
 

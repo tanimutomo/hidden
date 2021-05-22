@@ -45,5 +45,5 @@ class DataController:
                 num_workers=NUM_WORKERS, pin_memory=PIN_MEMORY, collate_fn=pkg.dataset.BatchItem,
             )
 
-        self.img_post_transformer = img_transformer.post_process if img_transformer.post_process else None
+        self.img_post_transformer = img_transformer.save if img_transformer.save else None
 

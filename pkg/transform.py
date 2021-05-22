@@ -33,10 +33,12 @@ class ImageTransformer(object):
             transforms.Normalize(self.dataset_stats.means(), self.dataset_stats.stds()),
         ])
 
-        self.post_process = transforms.Compose([
+        self.save = transforms.Compose([
             Unnormalize(self.dataset_stats.means(), self.dataset_stats.stds()),
             kornia.color.YuvToRgb(),
         ])
+
+        self.psnr = Unnormalize(self.dataset_stats.means(), self.dataset_stats.stds())
 
 
 class ToRGB:

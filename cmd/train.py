@@ -65,33 +65,35 @@ def main(cfg):
     device = torch.device(f"cuda:{cfg.gpu_ids[0]}" if cfg.gpu_ids else "cpu")
 
     datastats = pkg.dataset.COCODatasetStats()
-    transformers = pkg.transform.ImageTransformer(cfg.data.resol, dataset_stats=datastats)
+    imgtf = pkg.transform.ImageTransformer(cfg.data.resol, dataset_stats=datastats)
+
     if cfg.dataset.name == "bit":
         w2v = None
         train_dataset = pkg.dataset.BitMessageDataset(
             root_dir=cfg.data.train_path,
             msg_len=cfg.dataset.msg_len,
-            img_transform=transformers.train,
+            img_transform=imgtf.train,
         )
         test_dataset = pkg.dataset.BitMessageDataset(
             root_dir=cfg.data.test_path,
             msg_len=cfg.dataset.msg_len,
-            img_transform=transformers.test,
+            img_transform=imgtf.test,
         )
     elif cfg.dataset.name == "word":
         w2v = pkg.wordvec.GloVe(use_words=cfg.dataset.use_words, num_words=cfg.dataset.num_words, dim=cfg.dataset.dim)
         train_dataset = pkg.dataset.WordMessageDataset(
             root_dir=cfg.data.train_path,
             word_vec=w2v,
-            img_transform=transformers.train,
+            img_transform=imgtf.train,
         )
         test_dataset = pkg.dataset.WordMessageDataset(
             root_dir=cfg.data.test_path,
             word_vec=w2v,
-            img_transform=transformers.test,
+            img_transform=imgtf.test,
         )
     else:
         raise NotImplementedError()
+
     datactl = pkg.data_controller.DataController(
         resol=cfg.data.resol,
         dataset_stats=datastats,
@@ -135,6 +137,7 @@ def main(cfg):
         train_cycle = pkg.cycle.HiddenCycle(
             loss_cfg=pkg.cycle.HiddenLossConfig(),
             model=model,
+            metrics=pkg.metric.BitMetrics(imgtf=imgtf),
             device=device,
             gpu_ids=cfg.gpu_ids,
         )
@@ -142,6 +145,7 @@ def main(cfg):
         train_cycle = pkg.cycle.WordHiddenCycle(
             loss_cfg=pkg.cycle.HiddenLossConfig(),
             model=model,
+            metrics=pkg.metric.WordMetrics(imgtf=imgtf, w2v=w2v),
             w2v=w2v,
             device=device,
             gpu_ids=cfg.gpu_ids,
@@ -167,7 +171,7 @@ def main(cfg):
         ),
         trainer=train_cycle, 
         datactl=datactl,
-        log=pkg.iterator.LogBitOutput(transformers.post_process) if cfg.dataset.name == "bit" else pkg.iterator.LogWordOutput(transformers.post_process),
+        log=pkg.iterator.LogBitOutput(imgtf.save) if cfg.dataset.name == "bit" else pkg.iterator.LogWordOutput(imgtf.save),
         metrics=pkg.cycle.HiddenMetricOutput.keys() if cfg.dataset.name == "bit" else pkg.cycle.WordHiddenMetricOutput.keys(),
     )
     print("End Training")
