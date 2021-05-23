@@ -36,6 +36,7 @@ class ImageTransformer(object):
         self.save = transforms.Compose([
             Unnormalize(self.dataset_stats.means(), self.dataset_stats.stds()),
             kornia.color.YuvToRgb(),
+            Clamp(0.0, 1.0),
         ])
 
         self.psnr = Unnormalize(self.dataset_stats.means(), self.dataset_stats.stds())
@@ -67,3 +68,14 @@ class Unnormalize:
     def __repr__(self):
         return self.__class__.__name__ + '()'
 
+
+class Clamp:
+    def __init__(self, min_val: float, max_val: float):
+        self.min_val = min_val
+        self.max_val = max_val
+
+    def __call__(self, x: torch.FloatTensor):
+        return torch.clamp(x, self.min_val, self.max_val)
+
+    def __repr__(self):
+        return self.__class__.__name__ + '()'
