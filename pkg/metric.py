@@ -35,15 +35,15 @@ class _Base:
 
     def psnr_y(self, base: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         base, target = self.imgtf.psnr(base), self.imgtf.psnr(target)
-        kornia.losses.psnr(base[:, 0, ...], target[:, 0, ...], 1)
+        return kornia.losses.psnr(base[:, 0, ...], target[:, 0, ...], 1)
 
     def psnr_u(self, base: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         base, target = self.imgtf.psnr(base), self.imgtf.psnr(target)
-        kornia.losses.psnr(base[:, 1, ...], target[:, 1, ...], 1)
+        return kornia.losses.psnr(base[:, 1, ...], target[:, 1, ...], 1)
 
     def psnr_v(self, base: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         base, target = self.imgtf.psnr(base), self.imgtf.psnr(target)
-        kornia.losses.psnr(base[:, 2, ...], target[:, 2, ...], 1)
+        return kornia.losses.psnr(base[:, 2, ...], target[:, 2, ...], 1)
 
 
 class BitMetrics(_Base):
