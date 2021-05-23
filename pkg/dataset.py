@@ -138,9 +138,9 @@ class DatasetStats:
 @dataclass
 class COCODatasetStats:
     # use the mean and the std of https://en.wikipedia.org/wiki/YUV
-    y: DataStat =DataStat(mean=0.5, std=0.500)
-    u: DataStat =DataStat(mean=0.0, std=0.436)
-    v: DataStat =DataStat(mean=0.0, std=0.615)
+    y: DataStat =DataStat(mean=0.452, std=0.253)
+    u: DataStat =DataStat(mean=-0.022, std=0.058)
+    v: DataStat =DataStat(mean=0.022, std=0.079)
 
     def means(self) -> typing.List[float]:
         return [self.y.mean, self.u.mean, self.v.mean]

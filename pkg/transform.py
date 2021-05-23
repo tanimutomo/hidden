@@ -62,8 +62,7 @@ class Unnormalize:
             mean = mean[:, None, None]
         if std.ndim == 1:
             std = std[:, None, None]
-        x.mul_(std).add_(mean)
-        return x
+        return x * std + mean
 
     def __repr__(self):
         return self.__class__.__name__ + '()'

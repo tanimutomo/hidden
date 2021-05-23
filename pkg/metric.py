@@ -34,16 +34,17 @@ class _Base:
         return F.binary_cross_entropy(output, label)
 
     def psnr_y(self, base: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        base, target = self.imgtf.psnr(base), self.imgtf.psnr(target)
-        return kornia.losses.psnr(base[:, 0, ...], target[:, 0, ...], 1)
+        return self._psnr(base, target, 0)
 
     def psnr_u(self, base: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        base, target = self.imgtf.psnr(base), self.imgtf.psnr(target)
-        return kornia.losses.psnr(base[:, 1, ...], target[:, 1, ...], 1)
+        return self._psnr(base, target, 1)
 
     def psnr_v(self, base: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        return self._psnr(base, target, 2)
+
+    def _psnr(self, base: torch.Tensor, target: torch.Tensor, dim: int) -> torch.Tensor:
         base, target = self.imgtf.psnr(base), self.imgtf.psnr(target)
-        return kornia.losses.psnr(base[:, 2, ...], target[:, 2, ...], 1)
+        return kornia.losses.psnr(base[:, dim, ...], target[:, dim, ...], 1)
 
 
 class BitMetrics(_Base):
