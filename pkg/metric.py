@@ -72,7 +72,7 @@ class WordMetrics(_Base):
         for i in range(msg.shape[-1]//dim):
             s, e = i*dim, (i+1)*dim
             loss += F.mse_loss(pred_msg[:, s:e], msg[:, s:e])
-        return loss
+        return loss / (msg.shape[-1]//dim)
 
     def unit_message_accuracy(self, pred_msg: torch.Tensor, target_msg: torch.Tensor) -> torch.Tensor: 
         pred_msg = self.w2v.most_similar(self.w2v.unserialize(pred_msg))
