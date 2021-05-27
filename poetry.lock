@@ -536,7 +536,7 @@ wcwidth = "*"
 
 [[package]]
 name = "ptdt"
-version = "0.1.2"
+version = "0.1.6"
 description = "PyTorch Debug Tools"
 category = "main"
 optional = false
@@ -1228,8 +1228,8 @@ prompt-toolkit = [
     {file = "prompt_toolkit-3.0.18.tar.gz", hash = "sha256:e1b4f11b9336a28fa11810bc623c357420f69dfdb6d2dac41ca2c21a55c033bc"},
 ]
 ptdt = [
-    {file = "ptdt-0.1.2-py3-none-any.whl", hash = "sha256:0f11c711bd89cf7711160d41e2b802fbd3039ba6c28bba673dbf507609cd2989"},
-    {file = "ptdt-0.1.2.tar.gz", hash = "sha256:9bf15882cf640ffd63ec583442613427f23ba26e82e6c7a88e1d8d29f24bcb74"},
+    {file = "ptdt-0.1.6-py3-none-any.whl", hash = "sha256:d515ff82d6362fb1c875d328e8eeeaa4fb328a8a801ff04d6a709f60ba2efc00"},
+    {file = "ptdt-0.1.6.tar.gz", hash = "sha256:1357c87be44dfb32c8e46686e4466b3b309c14928b4a907a133e970e682b8c56"},
 ]
 ptyprocess = [
     {file = "ptyprocess-0.7.0-py2.py3-none-any.whl", hash = "sha256:4b41f3967fce3af57cc7e94b888626c18bf37a083e3651ca8feeb66d492fef35"},

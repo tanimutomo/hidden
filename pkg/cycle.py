@@ -14,6 +14,7 @@ StateDict = typing.Dict[str, typing.Any]
 class LossConfig:
     lambda_i: float =0.7
     lambda_g: float =0.001
+    lambda_m: float =1.0
 
 @dataclass
 class TrainConfig:
@@ -192,7 +193,7 @@ class BitCycle(Cycle):
         err_msg = self.metrics.message_loss(pred_msg, msg)
         err_rec = self.metrics.reconstruction_loss(enc_img, img)
 
-        err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
+        err_model = self.loss_cfg.lambda_m*err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
         err_model.backward()
 
         self.optimizer.step()
@@ -238,7 +239,7 @@ class BitCycle(Cycle):
         err_msg = self.metrics.message_loss(pred_msg, msg)
         err_rec = self.metrics.reconstruction_loss(enc_img, img)
 
-        err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
+        err_model = self.loss_cfg.lambda_m*err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
         acc_msg = self.metrics.message_accuracy(pred_msg, msg)
         unit_acc_msg = self.metrics.unit_message_accuracy(pred_msg, msg)
@@ -300,7 +301,7 @@ class WordCycle(Cycle):
         err_msg = self.metrics.message_loss(pred_msg, msg, self.w2v.dim)
         err_rec = self.metrics.reconstruction_loss(enc_img, img)
 
-        err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
+        err_model = self.loss_cfg.lambda_m*err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
         err_model.backward()
 
         self.optimizer.step()
@@ -353,7 +354,7 @@ class WordCycle(Cycle):
         err_msg = self.metrics.message_loss(pred_msg, msg, self.w2v.dim)
         err_rec = self.metrics.reconstruction_loss(enc_img, img)
 
-        err_model = err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
+        err_model = self.loss_cfg.lambda_m*err_msg + self.loss_cfg.lambda_i*err_rec + self.loss_cfg.lambda_g*err_g
 
         msg_acc = self.metrics.message_accuracy(pred_msg, item.msg())
         unit_msg_acc = self.metrics.unit_message_accuracy(pred_msg, item.msg())
