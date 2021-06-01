@@ -33,6 +33,6 @@ distortion:
   quality_factor: 0
   parallelable: False
 
-seed: 1234
+seed: 123
 gpu_ids: 
   - 0
