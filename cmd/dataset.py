@@ -16,7 +16,10 @@ def main(cfg):
         os.makedirs(tar, exist_ok=True)
         for i, f in enumerate(glob.glob(f"{org}/*")):
             img = PIL.Image.open(f)
-            img = transforms.CenterCrop(cfg.image_size)(img)
+            img = transforms.Compose([
+                transforms.Resize(cfg.image_size),
+                transforms.CenterCrop(cfg.image_size),
+            ])(img)
             img.save(f"{tar}/{os.path.basename(f)}")
             if i+1 == max_cnt: break
 
