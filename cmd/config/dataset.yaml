@@ -1,0 +1,17 @@
+hydra:
+  run:
+    dir: .log/dataset
+
+dataset_root: /home/tanimu/data
+
+original_dataset:
+  root: ${dataset_root}/coco2014
+  train_path: ${original_dataset.root}/train
+  test_path: ${original_dataset.root}/test
+
+target_dataset:
+  root: ${dataset_root}/coco2014_hidden
+  train_path: ${target_dataset.root}/train
+  test_path: ${target_dataset.root}/test
+
+image_size: 128
