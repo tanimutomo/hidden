@@ -31,9 +31,9 @@ class Decoder(nn.Module):
         super().__init__()
 
         self.convs = nn.Sequential(
-            ConvBlock(inp_c, hid_c, bn_track_running_stats=False),
-            *[ConvBlock(hid_c, hid_c, bn_track_running_stats=False)]*5,
-            ConvBlock(hid_c, out_c, bn_track_running_stats=False),
+            ConvBlock(inp_c, hid_c, bn_track_running_stats=True),
+            *[ConvBlock(hid_c, hid_c, bn_track_running_stats=True)]*5,
+            ConvBlock(hid_c, out_c, bn_track_running_stats=True),
         )
         self.pool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(out_c, out_c)
