@@ -17,8 +17,8 @@ data:
   train_batch_size: 48 # 12
   test_batch_size: 192 # 12
   root: /home/tanimu/data
-  train_path: ${data.root}/coco2014/train
-  test_path: ${data.root}/coco2014/test
+  train_path: ${data.root}/coco2014_hidden/train
+  test_path: ${data.root}/coco2014_hidden/test
 
 training:
   epochs: 150
