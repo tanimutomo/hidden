@@ -17,6 +17,9 @@ download: ## download dataset
 	mv test2014 coco2014/test
 	mv coco2014 ${HOME}/data
 
+dataset:
+	poetry run python cmd/dataset.py
+
 debug: train_dis = jpeg_drop
 debug: test_dis = jpeg
 debug: ## debug in Linux with cuda
