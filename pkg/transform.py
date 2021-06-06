@@ -16,8 +16,6 @@ class ImageTransformer(object):
 
     def __post_init__(self):
         self.train = transforms.Compose([
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomResizedCrop(self.img_size, scale=(0.3, 1.0)),
             ToRGB(),
             transforms.ToTensor(),
             kornia.color.RgbToYuv(),
@@ -25,8 +23,6 @@ class ImageTransformer(object):
         ])
 
         self.test = transforms.Compose([
-            transforms.Resize(self.img_size),
-            transforms.CenterCrop(self.img_size),
             ToRGB(),
             transforms.ToTensor(),
             kornia.color.RgbToYuv(),
