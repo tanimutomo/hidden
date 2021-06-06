@@ -1,6 +1,6 @@
 # @package distortion
 
 name: gaussian_blur
-kernel_size: 5
+kernel_size: 5 # 2*2 + 1
 sigma: 2.0
 parallelable: true
