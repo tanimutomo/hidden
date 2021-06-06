@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-import os
 import io
+import os
+import random
 import typing
 
 import PIL
@@ -57,13 +58,13 @@ class BatchItem:
 
 
 class _Base(torch.utils.data.Dataset):
-    def __init__(self, root_dir, img_transform):
+    def __init__(self, root_dir, num_images: int, img_transform):
         self.root_dir = root_dir
         self.img_transform = img_transform
-        self.files = [f for f in os.listdir(root_dir) if os.path.isfile(os.path.join(root_dir, f))]
+        self.files = random.sample([f for f in os.listdir(root_dir) if os.path.isfile(os.path.join(root_dir, f))], num_images)
 
     def __len__(self):
-        return sum(os.path.isfile(os.path.join(self.root_dir, name)) for name in os.listdir(self.root_dir))
+        return len(self.files)
 
     def __getitem__(self, idx: int) -> typing.Tuple[torch.Tensor, torch.Tensor]:
         img = PIL.Image.open(os.path.join(self.root_dir, self.files[idx]))
@@ -79,7 +80,7 @@ class _Base(torch.utils.data.Dataset):
 
 
 class BitMessageDataset(_Base):
-    def __init__(self, root_dir, msg_len, img_transform=None):
+    def __init__(self, root_dir, num_images, msg_len, img_transform=None):
         """
         Args:
             root_dir (string): Directory with all the images.
@@ -87,7 +88,7 @@ class BitMessageDataset(_Base):
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
-        super().__init__(root_dir, img_transform=img_transform)
+        super().__init__(root_dir, num_images, img_transform=img_transform)
         self.msg_len = int(msg_len)
 
     def _get_messages(self) -> torch.Tensor:
@@ -98,7 +99,7 @@ class BitMessageDataset(_Base):
 
 
 class WordMessageDataset(_Base):
-    def __init__(self, root_dir, word_vec, img_transform=None):
+    def __init__(self, root_dir, num_images, word_vec, img_transform=None):
         """
         Args:
             root_dir (string): Directory with all the images.
@@ -106,7 +107,7 @@ class WordMessageDataset(_Base):
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
-        super().__init__(root_dir, img_transform=img_transform)
+        super().__init__(root_dir, num_images, img_transform=img_transform)
         self.wvec = word_vec
 
     def _get_messages(self) -> pkg.wordvec.Pair:

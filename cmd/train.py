@@ -71,11 +71,13 @@ def main(cfg):
         w2v = None
         train_dataset = pkg.dataset.BitMessageDataset(
             root_dir=cfg.data.train_path,
+            num_images=cfg.data.train_num_images,
             msg_len=cfg.dataset.msg_len,
             img_transform=imgtf.train,
         )
         test_dataset = pkg.dataset.BitMessageDataset(
             root_dir=cfg.data.test_path,
+            num_images=cfg.data.test_num_images,
             msg_len=cfg.dataset.msg_len,
             img_transform=imgtf.test,
         )
@@ -83,11 +85,13 @@ def main(cfg):
         w2v = pkg.wordvec.GloVe(use_words=cfg.dataset.use_words, num_words=cfg.dataset.num_words, dim=cfg.dataset.dim)
         train_dataset = pkg.dataset.WordMessageDataset(
             root_dir=cfg.data.train_path,
+            num_images=cfg.data.train_num_images,
             word_vec=w2v,
             img_transform=imgtf.train,
         )
         test_dataset = pkg.dataset.WordMessageDataset(
             root_dir=cfg.data.test_path,
+            num_images=cfg.data.test_num_images,
             word_vec=w2v,
             img_transform=imgtf.test,
         )
