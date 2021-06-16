@@ -61,7 +61,8 @@ class _Base(torch.utils.data.Dataset):
     def __init__(self, root_dir, num_images: int, img_transform):
         self.root_dir = root_dir
         self.img_transform = img_transform
-        self.files = random.sample([f for f in os.listdir(root_dir) if os.path.isfile(os.path.join(root_dir, f))], num_images)
+        files = [f for f in os.listdir(root_dir) if os.path.isfile(os.path.join(root_dir, f))]
+        self.files = random.sample(files, num_images) if num_images > 0 else files
 
     def __len__(self):
         return len(self.files)

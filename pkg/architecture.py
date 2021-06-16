@@ -29,11 +29,12 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, inp_c: int =3, out_c: int =30, hid_c: int =64):
         super().__init__()
+        bn_track = False
 
         self.convs = nn.Sequential(
-            ConvBlock(inp_c, hid_c, bn_track_running_stats=True),
-            *[ConvBlock(hid_c, hid_c, bn_track_running_stats=True)]*5,
-            ConvBlock(hid_c, out_c, bn_track_running_stats=True),
+            ConvBlock(inp_c, hid_c, bn_track_running_stats=bn_track),
+            *[ConvBlock(hid_c, hid_c, bn_track_running_stats=bn_track)]*5,
+            ConvBlock(hid_c, out_c, bn_track_running_stats=bn_track),
         )
         self.pool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(out_c, out_c)

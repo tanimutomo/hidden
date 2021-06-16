@@ -14,18 +14,18 @@ data:
   resol: 128
   gray: False
   msg_len: 30
-  train_batch_size: 12 # 48
-  test_batch_size: 12 # 192
+  train_batch_size: 48 # 12
+  test_batch_size: 192 # 12
   root: /home/tanimu/data
   train_path: ${data.root}/coco2014/train
   test_path: ${data.root}/coco2014/test
-  train_num_images: 10000
-  test_num_images: 1000
+  train_num_images: -1
+  test_num_images: -1
 
 training:
-  epochs: 200
+  epochs: 150
   test_interval: 5
-  lr_scheduler_milestones: []
+  lr_scheduler_milestones: [100]
   lr_scheduler_step_factor: 0.1
 
 train:
