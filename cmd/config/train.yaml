@@ -20,7 +20,7 @@ data:
   train_path: ${data.root}/coco2014/train
   test_path: ${data.root}/coco2014/test
   train_num_images: -1
-  test_num_images: -1
+  test_num_images: 3000
 
 training:
   epochs: 150
