@@ -56,3 +56,4 @@ test_distortion:
 seed: null
 gpu_ids: 
   - 0
+  - 1
