@@ -4,7 +4,7 @@
 .PHONY: debug debug-mac train-identity train-dropout train-cropout train-crop train-gausian train-jpegdrop train-jpegmask train-combined test resume
 
 dataset := bit
-gpu_ids := [0]
+gpu_ids := [0,1]
 suffix := default
 
 download: ## download dataset
